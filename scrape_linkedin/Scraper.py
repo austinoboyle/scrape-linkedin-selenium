@@ -15,7 +15,7 @@ class Scraper(object):
     """
     Wrapper for selenium Chrome driver with methods to scroll through a page and 
     to scrape and parse info from a linkedin profile
-    
+
     Params:
         - cookie {str}: li_at session cookie required to scrape linkedin profiles
         - driver {webdriver}: driver to be used for scraping
@@ -96,10 +96,11 @@ class Scraper(object):
         """
         expandable_button_selectors = [
             'button[aria-expanded="false"].pv-skills-section__additional-skills',
-            '.pv-profile-section__see-more-inline',
+            'button[aria-expanded="false"].pv-profile-section__see-more-inline',
             'button[aria-expanded="false"].pv-top-card-section__summary-toggle-button',
             'button[data-control-name="contact_see_more"]'
         ]
+
         current_height = 0
         while True:
             for name in expandable_button_selectors:
