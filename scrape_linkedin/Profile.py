@@ -27,15 +27,19 @@ class Profile(object):
         info = {}
         top_card = one_or_default(self.soup, 'section.pv-top-card-section')
 
-        return get_info(top_card, {
+        personal_info = get_info(top_card, {
             'name': '.pv-top-card-section__name',
             'headline': '.pv-top-card-section__headline',
-            'company': '.pv-top-card-section__company',
-            'school': '.pv-top-card-section__school',
+            'company': '.pv-top-card-v2-section__company-name',
+            'school': '.pv-top-card-v2-section__school-name',
             'location': '.pv-top-card-section__location',
-            'followers': '.pv-top-card-section__connections span:nth-of-type(1)',
             'summary': 'p.pv-top-card-section__summary-text'
         })
+        followers_text = text_or_default(self.soup,
+                                         '.pv-recent-activity-section__follower-count-text')
+        personal_info['followers'] = followers_text.replace(
+            'followers', '').strip()
+        return personal_info
 
     @property
     def experiences(self):
@@ -71,12 +75,12 @@ class Profile(object):
             list of skills {name: str, endorsements: int} in decreasing order of
             endorsement quantity.
         """
-        skills = self.soup.select('.pv-skill-entity__pill-contents')
+        skills = self.soup.select('.pv-skill-category-entity__skill-wrapper')
         skills = list(map(get_skill_info, skills))
 
         # Sort skills based on endorsements.  If the person has no endorsements
         def sort_skills(x): return int(
-            x['endorsements']) if x['endorsements'] else 0
+            x['endorsements'].replace('+', '')) if x['endorsements'] else 0
         return sorted(skills, key=sort_skills, reverse=True)
 
     @property
