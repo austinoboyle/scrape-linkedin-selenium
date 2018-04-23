@@ -130,6 +130,6 @@ def get_skill_info(skill):
         dict of skill name and # of endorsements
     """
     return get_info(skill, {
-        'name': '.pv-skill-entity__skill-name',
-        'endorsements': '.pv-skill-entity__endorsement-count'
+        'name': '.pv-skill-category-entity__name',
+        'endorsements': '.pv-skill-category-entity__endorsement-count'
     }, default=0)
