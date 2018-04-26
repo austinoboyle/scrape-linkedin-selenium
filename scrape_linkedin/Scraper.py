@@ -13,7 +13,7 @@ from os import environ
 
 class Scraper(object):
     """
-    Wrapper for selenium Chrome driver with methods to scroll through a page and 
+    Wrapper for selenium Chrome driver with methods to scroll through a page and
     to scrape and parse info from a linkedin profile
 
     Params:
@@ -66,7 +66,11 @@ class Scraper(object):
                     (By.CSS_SELECTOR, '.profile-unavailable'))
             ))
         except TimeoutException as e:
-            print("Took to long to load the profile", e)
+            raise ValueError(
+                """Took too long to load profile.  Common problems/solutions:
+                1. Invalid LI_AT value: ensure that yours is correct (they
+                   update frequently)
+                2. Slow Internet: increase the timeout parameter in the Scraper constructor""")
 
         # Check if we got the 'profile unavailable' page
         try:
