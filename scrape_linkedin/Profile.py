@@ -36,7 +36,7 @@ class Profile(object):
             'summary': 'p.pv-top-card-section__summary-text'
         })
         followers_text = text_or_default(self.soup,
-                                         '.pv-recent-activity-section__follower-count-text')
+                                         '.pv-recent-activity-section__follower-count-text', '')
         personal_info['followers'] = followers_text.replace(
             'followers', '').strip()
         return personal_info

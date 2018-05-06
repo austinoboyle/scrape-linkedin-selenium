@@ -6,26 +6,25 @@ from os import path
 file_path = path.abspath(__file__)
 DIR = path.dirname(file_path)
 
+global profile_soup
+global basic_soup
+
 with open(path.join(DIR, 'profile.html'), 'r') as f1, open(path.join(DIR, 'test.html'), 'r') as f2:
     profile_soup = BS(f1.read(), 'html.parser')
     basic_soup = BS(f2.read(), 'html.parser')
-
-global profile_soup
-global basic_soup
 
 
 def test_all_or_default():
     assert u.all_or_default(profile_soup, '.asjdksjaldjsklajdksaldas') == []
     assert u.all_or_default(
         profile_soup, '.fjdskalfjdsalfs', default=None) == None
-    assert len(u.all_or_default(profile_soup, '.pv-profile-section')) == 22
-
+    assert len(u.all_or_default(basic_soup, '.test1')) == 2
     assert u.all_or_default(None, '.test1') == []
 
 
 def test_text_or_default():
     assert u.text_or_default(basic_soup, '.asdf') == None
-    assert u.text_or_default(basic_soup, '.test1') == 'Test'
+    assert u.text_or_default(basic_soup, '.1') == 'Test'
 
 
 def test_one_or_default():

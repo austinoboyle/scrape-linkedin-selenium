@@ -4,10 +4,9 @@ import bs4
 from bs4 import BeautifulSoup as BS
 DIR = path.dirname(path.abspath(__file__))
 
-
+global profile_html
 with open(path.join(DIR, 'profile.html'), 'r') as f:
     profile_html = f.read()
-global profile_html
 
 
 def test_handles_full_html_page():
