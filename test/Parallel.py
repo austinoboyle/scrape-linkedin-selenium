@@ -6,7 +6,7 @@ import sys
 import os
 
 
-def test_parallel():
+def parallel():
     users = ['austinoboyle', 'seancahalan', 'alexandre-granzer-guay-8b8378b2',
              'nicole-odenwald-45989594', 'swishgoswami', 'tang-david',
              'y-hung-tam-3943a636', 'delaramayazdi'

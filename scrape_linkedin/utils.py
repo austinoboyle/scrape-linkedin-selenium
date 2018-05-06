@@ -1,3 +1,10 @@
+from selenium.webdriver.chrome.options import Options
+
+options = Options()
+options.add_argument('--headless')
+HEADLESS_OPTIONS = options
+
+
 class AnyEC(object):
     def __init__(self, *args):
         self.ecs = args
