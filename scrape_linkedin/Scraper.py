@@ -25,13 +25,13 @@ class Scraper(object):
         - timeout {float}: time to wait for page to load first batch of async content
     """
 
-    def __init__(self, cookie=None, driver=selenium.webdriver.Chrome, scroll_pause=0.1, scroll_increment=300, timeout=10):
+    def __init__(self, cookie=None, driver=selenium.webdriver.Chrome, driver_options={}, scroll_pause=0.1, scroll_increment=300, timeout=10):
         if not cookie:
             if 'LI_AT' not in environ:
                 raise ValueError(
                     'Must either define LI_AT environment variable, or pass a cookie string to the Scraper')
             cookie = environ['LI_AT']
-        self.driver = driver()
+        self.driver = driver(**driver_options)
         self.scroll_pause = scroll_pause
         self.scroll_increment = scroll_increment
         self.timeout = timeout
@@ -42,6 +42,10 @@ class Scraper(object):
             'value': cookie,
             'domain': '.linkedin.com'
         })
+
+    def scrape(self, url='', user=None):
+        self.load_profile_page(url, user)
+        return self.get_profile()
 
     def load_profile_page(self, url, user=None):
         """Load profile page and all async content
@@ -81,8 +85,7 @@ class Scraper(object):
         # Scroll to the bottom of the page incrementally to load any lazy-loaded content
         self.scroll_to_bottom()
 
-    def get_profile(self, url):
-        self.load_profile_page(url)
+    def get_profile(self):
         profile = self.driver.find_element_by_id(
             'profile-wrapper').get_attribute("outerHTML")
         return Profile(profile)
