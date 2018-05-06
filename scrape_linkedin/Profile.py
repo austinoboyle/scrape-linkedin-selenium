@@ -53,16 +53,18 @@ class Profile(object):
         experiences = {}
         container = one_or_default(self.soup, '.background-section')
 
-        jobs = all_or_default(container, '#experience-section ul > li')
+        jobs = all_or_default(
+            container, '#experience-section ul .pv-position-entity')
         jobs = list(map(get_job_info, jobs))
         experiences['jobs'] = jobs
 
-        schools = all_or_default(container, '#education-section ul > li')
+        schools = all_or_default(
+            container, '#education-section .pv-education-entity')
         schools = list(map(get_school_info, schools))
         experiences['education'] = schools
 
         volunteering = all_or_default(
-            container, '.pv-profile-section.volunteering-section ul > li')
+            container, '.pv-profile-section.volunteering-section .pv-volunteering-entity')
         volunteering = list(map(get_volunteer_info, volunteering))
         experiences['volunteering'] = volunteering
 
