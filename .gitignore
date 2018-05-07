@@ -3,3 +3,5 @@
 **/*.egg-info/**
 **/.pytest_cache/**
 *.json
+README.md.*
+README.md.*
