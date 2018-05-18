@@ -36,7 +36,7 @@ def scrape(url, user, attribute, input_file, output_file):
         if 'LI_AT' not in os.environ:
             raise ClickException("Must set LI_AT environment variable")
         with Scraper(cookie=os.environ['LI_AT']) as scraper:
-            profile = scraper.get_profile(url)
+            profile = scraper.scrape(url=url)
     else:
         with open(input_file, 'r') as html:
             profile = Profile(html)
