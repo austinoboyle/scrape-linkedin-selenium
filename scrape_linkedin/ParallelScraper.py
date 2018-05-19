@@ -1,4 +1,4 @@
-from .Scraper import Scraper
+from .ProfileScraper import ProfileScraper
 from .utils import HEADLESS_OPTIONS, split_lists
 from joblib import Parallel, delayed
 from selenium.webdriver import Chrome
@@ -38,7 +38,7 @@ def scrape_in_parallel(
 
 
 def scrape_job(users, output_file, **scraper_kwargs):
-    scraper = Scraper(**scraper_kwargs)
+    scraper = ProfileScraper(**scraper_kwargs)
     data = {}
     for user in users:
         try:
