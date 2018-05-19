@@ -1,30 +1,16 @@
-from bs4 import BeautifulSoup
-from pprint import pprint
 from .utils import *
+from .ResultsObject import ResultsObject
 
 
-class Profile(object):
-    """Linkedin Profile object
+class Profile(ResultsObject):
+    """Linkedin User Profile Object"""
 
-    Attributes:
-        - personal_info
-        - experiences
-        - skills
-        - accomplishments
-        - interests
-        - to_dict: return dictionary of all properties listed above
-    """
     attributes = ['personal_info', 'experiences',
                   'skills', 'accomplishments', 'interests']
-
-    def __init__(self, body):
-        """Initializes a profile with beautifulsoup body"""
-        self.soup = BeautifulSoup(body, 'html.parser')
 
     @property
     def personal_info(self):
         """Return dict of personal info about the user"""
-        info = {}
         top_card = one_or_default(self.soup, 'section.pv-top-card-section')
 
         personal_info = get_info(top_card, {
@@ -123,26 +109,3 @@ class Profile(object):
         interests = map(lambda i: text_or_default(
             i, '.pv-entity__summary-title'), interests)
         return list(interests)
-
-    def to_dict(self):
-        """Return full dict of person's profile
-        """
-        info = {}
-        info['personal_info'] = self.personal_info
-        info['experiences'] = self.experiences
-        info['skills'] = self.skills
-        info['accomplishments'] = self.accomplishments
-        info['interests'] = self.interests
-        return info
-
-    def __dict__(self):
-        return self.to_dict()
-
-    def __eq__(self, that):
-        return self.to_dict() == that.to_dict()
-
-
-if __name__ == '__main__':
-    with open('test.html', 'r') as inFile:
-        profile = Profile(inFile.read())
-        pprint(profile.to_dict())
