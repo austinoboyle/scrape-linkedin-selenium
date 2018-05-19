@@ -18,9 +18,9 @@ class Company(ResultsObject):
     def overview(self):
         """Return dict of the overview section of the Linkedin Page"""
         banner = one_or_default(
-            self.soup, 'div.org-top-card-module__container')
+            self.overview_soup, 'div.org-top-card-module__container')
         container = one_or_default(
-            self.soup, 'section.org-about-company-module')
+            self.overview_soup, 'section.org-about-company-module')
 
         overview = get_info(container, {
             'description': '.org-about-us-organization-description__text',
