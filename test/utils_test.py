@@ -16,7 +16,7 @@ with open(path.join(DIR, 'profile.html'), 'r') as f1, open(path.join(DIR, 'test.
 
 def test_split_lists():
     lst = [1, 2, 3, 4, 5, 6]
-    assert(u.split_lists(lst, 3) == [[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    assert(u.split_lists(lst, 3) == [[1, 2], [3, 4], [5, 6]])
     assert(u.split_lists(lst, 4) == [[1, 2], [3, 4], [5], [6]])
 
 
