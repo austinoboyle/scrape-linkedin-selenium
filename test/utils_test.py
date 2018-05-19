@@ -14,6 +14,12 @@ with open(path.join(DIR, 'profile.html'), 'r') as f1, open(path.join(DIR, 'test.
     basic_soup = BS(f2.read(), 'html.parser')
 
 
+def test_split_lists():
+    lst = [1, 2, 3, 4, 5, 6]
+    assert(u.split_lists(lst, 3) == [[1, 2], [3, 4], [5, 6]])
+    assert(u.split_lists(lst, 4) == [[1, 2], [3, 4], [5], [6]])
+
+
 def test_all_or_default():
     assert u.all_or_default(profile_soup, '.asjdksjaldjsklajdksaldas') == []
     assert u.all_or_default(

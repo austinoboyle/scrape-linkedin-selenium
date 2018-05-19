@@ -1,4 +1,4 @@
-from scrape_linkedin import scrape_in_parallel, Scraper
+from scrape_linkedin import scrape_in_parallel, ProfileScraper, CompanyScraper
 from scrape_linkedin.utils import HEADLESS_OPTIONS
 import time
 import json
@@ -7,19 +7,10 @@ import os
 
 
 def parallel():
-    users = ['austinoboyle', 'seancahalan', 'alexandre-granzer-guay-8b8378b2',
-             'nicole-odenwald-45989594', 'swishgoswami', 'tang-david',
-             'y-hung-tam-3943a636', 'delaramayazdi'
-             ]
-    with open('hrefs.json', 'r') as user_data:
-        users = json.load(user_data)[0:8]
-    data = {}
-    scraper = Scraper(driver_options=HEADLESS_OPTIONS)
-    for user in users:
-        data[user] = scraper.scrape(user=user).to_dict()
-    with open('../out2.json', 'w') as out:
-        json.dump(data, out)
+    companies = ['google', 'facebook']
+    scrape_in_parallel(scraper_type=CompanyScraper, items=companies,
+                       output_file='companies.json', num_instances=2)
 
 
 if __name__ == '__main__':
-    test_parallel()
+    parallel()

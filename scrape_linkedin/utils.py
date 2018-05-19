@@ -1,8 +1,14 @@
 from selenium.webdriver.chrome.options import Options
+import math
 
 options = Options()
 options.add_argument('--headless')
-HEADLESS_OPTIONS = options
+HEADLESS_OPTIONS = {'chrome_options': options}
+
+
+def split_lists(lst, num):
+    k, m = divmod(len(lst), num)
+    return [lst[i * k + min(i, m): (i+1) * k + min(i + 1, m)] for i in range(num)]
 
 
 class AnyEC(object):
