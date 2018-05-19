@@ -28,7 +28,8 @@ class Company(ResultsObject):
             'location': '.org-about-company-module__headquarters',
             'year_founded': '.org-about-company-module__founded',
             'company_type': '.org-about-company-module__company-type',
-            'company_size': '.org-about-company-module__company-staff-count-range'
+            'company_size': '.org-about-company-module__company-staff-count-range',
+            'specialties': '.org-about-company-module__specialities'
         })
 
         overview.update(get_info(banner, {

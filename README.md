@@ -210,19 +210,20 @@ beneficial, you will want to be scraping many (> 15) profiles.
 ### Example
 
 ```python
-from scrape_linkedin import scrape_in_parallel
+from scrape_linkedin import scrape_in_parallel, CompanyScraper
 
-users = ['austinoboyle', 'joeblow', 'another_linkedin_user', ...]
+companies = ['facebook', 'google', 'amazon', 'microsoft', ...]
 
-#Scrape all profiles, output to 'data.json' file, use 4 browser instances
-scrape_in_parallel(users=users, output_file="data.json", num_instances=4)
+#Scrape all companies, output to 'companies.json' file, use 4 browser instances
+scrape_in_parallel(scraper_type=CompanyScraper, items=companies, output_file="companies.json", num_instances=4)
 ```
 
 ### Configuration
 
 **Parameters:**
 
-*   _users_ **`{list}`**: List of usernames to be scraped
+*   _scraper_type_ **`{scrape_linkedin.Scraper}`**: Scraper to use
+*   _items_ **`{list}`**: List of items to be scraped
 *   _output_file_ **`{str}`**: path to output file
 *   _num_instances_ **`{int}`**: number of parallel instances of selenium to run
 *   _temp_dir_ **`{str}`**: name of temporary directory to use to store data from intermediate steps
