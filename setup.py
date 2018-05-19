@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='scrape_linkedin',
-      version="0.1.1",
+      version="0.2",
       description='Selenium Scraper for Linkedin Profiles',
       long_description=readme(),
       author="Austin O'Boyle",
