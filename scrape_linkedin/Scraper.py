@@ -1,6 +1,7 @@
 import selenium.webdriver
 import time
 from os import environ
+from abc import abstractmethod
 
 
 class Scraper(object):
@@ -18,6 +19,10 @@ class Scraper(object):
     """
 
     def __init__(self, cookie=None, driver=selenium.webdriver.Chrome, driver_options={}, scroll_pause=0.1, scroll_increment=300, timeout=10):
+        if type(self) is Scraper:
+            raise Exception(
+                'Scraper is an abstract class and cannot be instantiated directly')
+
         if not cookie:
             if 'LI_AT' not in environ:
                 raise ValueError(
@@ -35,9 +40,9 @@ class Scraper(object):
             'domain': '.linkedin.com'
         })
 
-    def scrape(self, url='', user=None):
-        self.load_profile_page(url, user)
-        return self.get_profile()
+    @abstractmethod
+    def scrape(self):
+        raise Exception('Must override abstract method scrape')
 
     def get_html(self, url):
         self.load_profile_page(url)
