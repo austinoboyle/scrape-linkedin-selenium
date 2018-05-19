@@ -25,7 +25,8 @@ unauthenticated or unusual requests
     *   [Usage](#usage)
         *   [Command Line](#command-line)
         *   [Python Package](#python-package)
-        *   [Structure of the fields scraped](#structure-of-the-fields-scraped)
+            *   [Profiles](#profiles)
+            *   [Companies](#companies)
     *   [Scraping in Parallel](#scraping-in-parallel)
         *   [Example](#example)
         *   [Configuration](#configuration)
@@ -89,6 +90,8 @@ environment variable** if both are set.
 scrape_linkedin comes with a command line argument module `scrapeli` created
 using [click](http://click.pocoo.org/5/).
 
+**Note: CLI only works with Personal Profiles as of now.**
+
 Options:
 
 *   --url : Full Url of the profile you want to scrape
@@ -108,15 +111,15 @@ Examples:
 
 ### Python Package
 
-Two main classes
+#### Profiles
 
-`Scraper` - wrapper for selenium webdriver with some useful methods for loading
+`ProfileScraper` - wrapper for selenium webdriver with some useful methods for loading
 dynamic linkedin content
 
 ```python
-from scrape_linkedin import Scraper
+from scrape_linkedin import ProfileScraper
 
-with Scraper() as scraper:
+with ProfileScraper() as scraper:
     profile = scraper.scrape(user='austinoboyle')
 print(profile.to_dict())
 ```
@@ -134,7 +137,7 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     print (profile.to_dict())
     # {personal_info: {...}, experiences: {...}, ...}
 
-### Structure of the fields scraped
+**Structure of the fields scraped**
 
 *   personal_info
     *   name
@@ -159,6 +162,44 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     *   test scores
     *   languages
     *   organizations
+
+#### Companies
+
+```python
+from scrape_linkedin import ProfileScraper
+
+with ProfileScraper() as scraper:
+    profile = scraper.scrape(user='austinoboyle')
+print(profile.to_dict())
+```
+
+`Profile` - the class that has properties to access all information pulled from
+a profile. Also has a to_dict() method that returns all of the data as a dict
+
+    with open('profile.html', 'r') as profile_file:
+        profile = Profile(profile_file.read())
+
+    print (profile.skills)
+    # [{...} ,{...}, ...]
+    print (profile.experiences)
+    # {jobs: [...], volunteering: [...],...}
+    print (profile.to_dict())
+    # {personal_info: {...}, experiences: {...}, ...}
+
+**Structure of the fields scraped**
+
+*   overview
+    *   name
+    *   industry
+    *   description
+    *   location
+    *   website
+    *   year_founded
+    *   company_type
+    *   company_size
+    *   num_employees
+*   jobs
+*   life
 
 ## Scraping in Parallel
 

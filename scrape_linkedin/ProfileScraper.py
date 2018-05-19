@@ -1,6 +1,5 @@
 from .Scraper import Scraper
 import json
-import selenium.webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -9,7 +8,6 @@ from selenium.common.exceptions import TimeoutException
 import time
 from .Profile import Profile
 from .utils import AnyEC
-from os import environ
 
 
 class ProfileScraper(Scraper):
