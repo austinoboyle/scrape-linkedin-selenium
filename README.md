@@ -25,7 +25,8 @@ unauthenticated or unusual requests
     *   [Usage](#usage)
         *   [Command Line](#command-line)
         *   [Python Package](#python-package)
-        *   [Structure of the fields scraped](#structure-of-the-fields-scraped)
+            *   [Profiles](#profiles)
+            *   [Companies](#companies)
     *   [Scraping in Parallel](#scraping-in-parallel)
         *   [Example](#example)
         *   [Configuration](#configuration)
@@ -89,6 +90,8 @@ environment variable** if both are set.
 scrape_linkedin comes with a command line argument module `scrapeli` created
 using [click](http://click.pocoo.org/5/).
 
+**Note: CLI only works with Personal Profiles as of now.**
+
 Options:
 
 *   --url : Full Url of the profile you want to scrape
@@ -108,15 +111,15 @@ Examples:
 
 ### Python Package
 
-Two main classes
+#### Profiles
 
-`Scraper` - wrapper for selenium webdriver with some useful methods for loading
+`ProfileScraper` - wrapper for selenium webdriver with some useful methods for loading
 dynamic linkedin content
 
 ```python
-from scrape_linkedin import Scraper
+from scrape_linkedin import ProfileScraper
 
-with Scraper() as scraper:
+with ProfileScraper() as scraper:
     profile = scraper.scrape(user='austinoboyle')
 print(profile.to_dict())
 ```
@@ -134,7 +137,7 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     print (profile.to_dict())
     # {personal_info: {...}, experiences: {...}, ...}
 
-### Structure of the fields scraped
+**Structure of the fields scraped**
 
 *   personal_info
     *   name
@@ -160,6 +163,44 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     *   languages
     *   organizations
 
+#### Companies
+
+```python
+from scrape_linkedin import ProfileScraper
+
+with ProfileScraper() as scraper:
+    profile = scraper.scrape(user='austinoboyle')
+print(profile.to_dict())
+```
+
+`Profile` - the class that has properties to access all information pulled from
+a profile. Also has a to_dict() method that returns all of the data as a dict
+
+    with open('profile.html', 'r') as profile_file:
+        profile = Profile(profile_file.read())
+
+    print (profile.skills)
+    # [{...} ,{...}, ...]
+    print (profile.experiences)
+    # {jobs: [...], volunteering: [...],...}
+    print (profile.to_dict())
+    # {personal_info: {...}, experiences: {...}, ...}
+
+**Structure of the fields scraped**
+
+*   overview
+    *   name
+    *   industry
+    *   description
+    *   location
+    *   website
+    *   year_founded
+    *   company_type
+    *   company_size
+    *   num_employees
+*   jobs
+*   life
+
 ## Scraping in Parallel
 
 New in version 0.2: built in parallel scraping functionality. Note that the
@@ -169,19 +210,20 @@ beneficial, you will want to be scraping many (> 15) profiles.
 ### Example
 
 ```python
-from scrape_linkedin import scrape_in_parallel
+from scrape_linkedin import scrape_in_parallel, CompanyScraper
 
-users = ['austinoboyle', 'joeblow', 'another_linkedin_user', ...]
+companies = ['facebook', 'google', 'amazon', 'microsoft', ...]
 
-#Scrape all profiles, output to 'data.json' file, use 4 browser instances
-scrape_in_parallel(users=users, output_file="data.json", num_instances=4)
+#Scrape all companies, output to 'companies.json' file, use 4 browser instances
+scrape_in_parallel(scraper_type=CompanyScraper, items=companies, output_file="companies.json", num_instances=4)
 ```
 
 ### Configuration
 
 **Parameters:**
 
-*   _users_ **`{list}`**: List of usernames to be scraped
+*   _scraper_type_ **`{scrape_linkedin.Scraper}`**: Scraper to use
+*   _items_ **`{list}`**: List of items to be scraped
 *   _output_file_ **`{str}`**: path to output file
 *   _num_instances_ **`{int}`**: number of parallel instances of selenium to run
 *   _temp_dir_ **`{str}`**: name of temporary directory to use to store data from intermediate steps

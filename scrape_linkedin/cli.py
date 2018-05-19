@@ -13,7 +13,7 @@ pylinkedin -u https://www.linkedin.com/in/nadia-freitag-81173966 -a skills -o my
 
 import click
 from click import ClickException
-from .Scraper import Scraper
+from .ProfileScraper import ProfileScraper
 from .Profile import Profile
 from pprint import pprint
 import json
@@ -35,7 +35,7 @@ def scrape(url, user, attribute, input_file, output_file):
     elif url:
         if 'LI_AT' not in os.environ:
             raise ClickException("Must set LI_AT environment variable")
-        with Scraper(cookie=os.environ['LI_AT']) as scraper:
+        with ProfileScraper(cookie=os.environ['LI_AT']) as scraper:
             profile = scraper.scrape(url=url)
     else:
         with open(input_file, 'r') as html:
