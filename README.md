@@ -3,7 +3,8 @@
 ## Introduction
 
 `scrape_linkedin` is a python package to scrape all details from public LinkedIn
-profiles, turning the data into structured json.
+profiles, turning the data into structured json. You can scrape Companies
+and user profiles with this package.
 
 **Warning**: LinkedIn has strong anti-scraping policies, they may blacklist ips making
 unauthenticated or unusual requests
@@ -27,6 +28,7 @@ unauthenticated or unusual requests
         *   [Python Package](#python-package)
             *   [Profiles](#profiles)
             *   [Companies](#companies)
+            *   [Config](#config)
     *   [Scraping in Parallel](#scraping-in-parallel)
         *   [Example](#example)
         *   [Configuration](#configuration)
@@ -77,10 +79,10 @@ There are two ways to set your li_at cookie:
 1.  Set the LI_AT environment variable
     *   `$ export LI_AT=YOUR_LI_AT_VALUE`
     *   **On Windows**: `$ set LI_AT=YOUR_LI_AT_VALUE
-2.  Pass the cookie as a parameter to the Parser object.
-    > `>>> with Scraper(cookie='YOUR_LI_AT_VALUE') as scraper:`
+2.  Pass the cookie as a parameter to the Scraper object.
+    > `>>> with ProfileScraper(cookie='YOUR_LI_AT_VALUE') as scraper:`
 
-A cookie value passed directly to the Parser object **will override your
+A cookie value passed directly to the Scraper **will override your
 environment variable** if both are set.
 
 ## Usage
@@ -113,8 +115,7 @@ Examples:
 
 #### Profiles
 
-`ProfileScraper` - wrapper for selenium webdriver with some useful methods for loading
-dynamic linkedin content
+Use `ProfileScraper` component to scrape profiles.
 
 ```python
 from scrape_linkedin import ProfileScraper
@@ -165,26 +166,27 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
 
 #### Companies
 
-```python
-from scrape_linkedin import ProfileScraper
+Use `CompanyScraper` component to scrape companies.
 
-with ProfileScraper() as scraper:
-    profile = scraper.scrape(user='austinoboyle')
-print(profile.to_dict())
+```python
+from scrape_linkedin import CompanyScraper
+
+with CompanyScraper() as scraper:
+    company = scraper.scrape(company='facebook')
+print(company.to_dict())
 ```
 
-`Profile` - the class that has properties to access all information pulled from
-a profile. Also has a to_dict() method that returns all of the data as a dict
+`Company` - the class that has properties to access all information pulled from
+a company profile. There will be three properties: overview, jobs, and life.
+**Overview is the only one currently implemented.**
 
-    with open('profile.html', 'r') as profile_file:
-        profile = Profile(profile_file.read())
+    with open('overview.html', 'r') as overview,
+        open('jobs.html', 'r') as jobs,
+        open('life.html', 'r') as life:
+            company = Company(overview, jobs, life)
 
-    print (profile.skills)
-    # [{...} ,{...}, ...]
-    print (profile.experiences)
-    # {jobs: [...], volunteering: [...],...}
-    print (profile.to_dict())
-    # {personal_info: {...}, experiences: {...}, ...}
+    print (company.overview)
+    # {...}
 
 **Structure of the fields scraped**
 
@@ -198,8 +200,27 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     *   company_type
     *   company_size
     *   num_employees
-*   jobs
-*   life
+*   jobs **NOT YET IMPLEMENTED**
+*   life **NOT YET IMPLEMENTED**
+
+#### config
+
+Pass these keyword arguments into the constructor of your Scraper to override
+default values. You may (for example) want to decrease/increase the timeout if
+your internet is very fast/slow.
+
+*   _cookie_ **`{str}`**: li_at cookie value (overrides env variable)
+    *   **default: `None`**
+*   _driver_ **`{selenium.webdriver}`**: driver type to use
+    *   **default: `selenium.webdriver.Chrome`**
+*   _driver_options_ **`{dict}`**: kwargs to pass to driver constructor
+    *   **default: `{}`**
+*   _scroll_pause_ **`{float}`**: time(s) to pause during scroll increments
+    *   **default: `0.1`**
+*   _scroll_increment_ **`{int}`** num pixels to scroll down each time
+    *   **default: `300`**
+*   _timeout_ **`{float}`**: default time to wait for async content to load
+    *   **default: `10`**
 
 ## Scraping in Parallel
 
@@ -215,7 +236,12 @@ from scrape_linkedin import scrape_in_parallel, CompanyScraper
 companies = ['facebook', 'google', 'amazon', 'microsoft', ...]
 
 #Scrape all companies, output to 'companies.json' file, use 4 browser instances
-scrape_in_parallel(scraper_type=CompanyScraper, items=companies, output_file="companies.json", num_instances=4)
+scrape_in_parallel(
+    scraper_type=CompanyScraper,
+    items=companies,
+    output_file="companies.json",
+    num_instances=4
+)
 ```
 
 ### Configuration
@@ -232,7 +258,7 @@ scrape_in_parallel(scraper_type=CompanyScraper, items=companies, output_file="co
     *   **default: selenium.webdriver.Chrome**
 *   _driver_options_ **`{dict}`**: dict of keyword arguments to pass to the driver function.
     *   **default: scrape_linkedin.utils.HEADLESS_OPTIONS**
-*   _\*\*kwargs_ **`{any}`**: keyword arguments to pass to the scrape_linkedin.Scraper constructor for each job
+*   _\*\*kwargs_ **`{any}`**: extra keyword arguments to pass to the `scraper_type` constructor for each job
 
 ## Issues
 
