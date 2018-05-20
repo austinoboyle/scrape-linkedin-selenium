@@ -1,5 +1,6 @@
 from .CompanyScraper import CompanyScraper
 from .ProfileScraper import ProfileScraper
+from .ConnectionScraper import ConnectionScraper
 from .utils import HEADLESS_OPTIONS, split_lists
 from joblib import Parallel, delayed
 from selenium.webdriver import Chrome
@@ -49,6 +50,8 @@ def scrape_job(scraper_type, items, output_file, **scraper_kwargs):
         try:
             if scraper_type == CompanyScraper:
                 data[item] = scraper.scrape(company=item).to_dict()
+            elif scraper_type == ConnectionScraper:
+                data[item] = scraper.scrape(user=item)
             else:
                 data[item] = scraper.scrape(user=item).to_dict()
         except Exception as e:
