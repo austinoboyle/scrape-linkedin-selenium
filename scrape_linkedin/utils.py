@@ -1,4 +1,6 @@
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.expected_conditions import _find_element
+
 import math
 
 options = Options()
@@ -9,6 +11,16 @@ HEADLESS_OPTIONS = {'chrome_options': options}
 def split_lists(lst, num):
     k, m = divmod(len(lst), num)
     return [lst[i * k + min(i, m): (i+1) * k + min(i + 1, m)] for i in range(num)]
+
+
+class TextChanged(object):
+    def __init__(self, locator, text):
+        self.locator = locator
+        self.text = text
+
+    def __call__(self, driver):
+        actual_text = _find_element(driver, self.locator).text
+        return actual_text != self.text
 
 
 class AnyEC(object):

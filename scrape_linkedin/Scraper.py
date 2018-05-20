@@ -2,6 +2,9 @@ import selenium.webdriver
 import time
 from os import environ
 from abc import abstractmethod
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 
 class Scraper(object):
@@ -79,6 +82,14 @@ class Scraper(object):
             current_height = new_height
             # Wait to load page
             time.sleep(self.scroll_pause)
+
+    def wait(self, condition):
+        return WebDriverWait(self.driver, self.timeout).until(condition)
+
+    def wait_for_el(self, selector):
+        return self.wait(EC.presence_of_element_located((
+            By.CSS_SELECTOR, selector
+        )))
 
     def __enter__(self):
         return self
