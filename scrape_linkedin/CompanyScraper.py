@@ -18,14 +18,20 @@ class CompanyScraper(Scraper):
             '.organization-outlet').get_attribute('outerHTML')
 
         # Get job Info
-        self.load_jobs()
-        jobs_html = self.driver.find_element_by_css_selector(
-            '.org-jobs-container').get_attribute('outerHTML')
+        try:
+            self.load_jobs()
+            jobs_html = self.driver.find_element_by_css_selector(
+                '.org-jobs-container').get_attribute('outerHTML')
+        except:
+            jobs_html = ''
 
         # Get Life Info
-        self.load_life()
-        life_html = self.driver.find_element_by_css_selector(
-            '.org-life').get_attribute('outerHTML')
+        try:
+            self.load_life()
+            life_html = self.driver.find_element_by_css_selector(
+                '.org-life').get_attribute('outerHTML')
+        except:
+            life_html = ''
         return Company(overview_html, jobs_html, life_html)
 
     def load_initial(self, url, company=None):
