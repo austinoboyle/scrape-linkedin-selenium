@@ -34,7 +34,7 @@ def scrape_in_parallel(
     all_data = {}
     for i in range(num_instances):
         with open(temp_dir + '/{}.json'.format(i), 'r') as data:
-            all_data = {**all_data, **json.load(data)}
+            all_data.update(json.load(data))
     if output_file:
         with open(output_file, 'w') as out:
             json.dump(all_data, out)
