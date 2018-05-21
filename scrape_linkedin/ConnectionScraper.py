@@ -78,14 +78,6 @@ scrape the connections of someone you aren't connected to.""")
         except TimeoutException:
             return []
         all_conns = []
-        while True:
-            more_pages, page_results = self.scrape_page()
-            all_conns += page_results
-            if not more_pages:
-                break
-            else:
-                self.next_page()
-        return all_conns
 
     def next_page(self):
         next_btn = self.driver.find_element_by_css_selector('button.next')
@@ -94,6 +86,16 @@ scrape the connections of someone you aren't connected to.""")
             (By.CSS_SELECTOR, '.results-paginator li.page-list li.active'), str(self.page_num + 1)
         ))
         self.page_num += 1
+
+    def scrape_all_pages():
+        all_results = []
+        more_pages = True
+        while more_pages:
+            more_pages, page_results = self.scrape_page()
+            all_results += page_results
+            if more_pages:
+                self.next_page()
+        return all_results
 
     def scrape_page(self):
         print("SCRAPING PAGE: ", self.page_num)
