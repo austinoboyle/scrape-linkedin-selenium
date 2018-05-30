@@ -32,9 +32,12 @@ class Job(ResultsObject):
         if company_img:
             basic_info['company_image_link'] = company_img['src']
 
-        company_link = self.basic_soup.find('a')
+        company_link = self.basic_soup.find('a',{'class':'jobs-details-top-card__company-url'})
         if company_link:
-            basic_info['company_id'] = company_link['href'].split("/")[2]
+            try:
+                basic_info['company_id'] = company_link['href'].split("/")[2]
+            except:
+                print(company_link['href'])
 
         basic_info['job_id'] = self.job_id
 

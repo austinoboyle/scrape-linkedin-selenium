@@ -72,9 +72,6 @@ class JobScraper(Scraper):
         #    raise ValueError(
         #        'Job Unavailable: either this job does not exist or LinkedIn is having problems')
 
-        # Scroll to the bottom of the page incrementally to load any lazy-loaded content
-        self.scroll_to_bottom()
-
     def load_detailed_info(self):
         more_button = self.driver.find_element_by_css_selector('.view-more-icon')
         more_button.click()
