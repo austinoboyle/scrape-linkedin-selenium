@@ -9,9 +9,9 @@ def scrapeTest():
     assert ('LI_AT' in os.environ),"Must set LI_AT environment variable"
 
     with JobSearchScraper.JobSearchScraper(cookie=str(os.getenv('LI_AT'))) as scraper:
-        output = scraper.scrape(location=location)
+        output = scraper.scrape_by_page(location=location,num_pages=2)
 
-    for job in output:
+    for job in output[0]:
         pprint(job.to_dict())
 
 if __name__ == '__main__':
