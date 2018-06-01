@@ -1,4 +1,5 @@
 from .Scraper import Scraper
+from .ConnectionScraper import ConnectionScraper
 import json
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,7 +13,7 @@ from .utils import AnyEC
 
 class ProfileScraper(Scraper):
     """
-    Scraper for Personal LinkedIn Profiles. See inherited Scraper class for 
+    Scraper for Personal LinkedIn Profiles. See inherited Scraper class for
     details about the constructor.
     """
 
@@ -20,7 +21,7 @@ class ProfileScraper(Scraper):
         self.load_profile_page(url, user)
         return self.get_profile()
 
-    def load_profile_page(self, url, user=None):
+    def load_profile_page(self, url='', user=None):
         """Load profile page and all async content
 
         Params:
@@ -62,3 +63,15 @@ class ProfileScraper(Scraper):
         profile = self.driver.find_element_by_id(
             'profile-wrapper').get_attribute("outerHTML")
         return Profile(profile)
+
+    def get_mutual_connections(self):
+        try:
+            link = self.driver.find_element_by_partial_link_text(
+                'Mutual Connection')
+        except NoSuchElementException as e:
+            print("NO MUTUAL CONNS")
+            return []
+        with ConnectionScraper(scraperInstance=self) as cs:
+            cs.driver.get(link.get_attribute('href'))
+            cs.wait_for_el('.search-s-facet--facetNetwork form button')
+            return cs.scrape_all_pages()
