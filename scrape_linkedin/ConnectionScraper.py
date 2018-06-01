@@ -22,10 +22,9 @@ class ConnectionScraper(Scraper):
 
     def scrape(self, url='', user=None):
         self.load_profile_page(url, user)
-        self.page_num = 1
         return self.get_first_connections()
 
-    def load_profile_page(self, url, user=None):
+    def load_profile_page(self, url='', user=None):
         """Load profile page and all async content
 
         Params:
@@ -87,7 +86,8 @@ scrape the connections of someone you aren't connected to.""")
         ))
         self.page_num += 1
 
-    def scrape_all_pages():
+    def scrape_all_pages(self):
+        self.page_num = 1
         all_results = []
         more_pages = True
         while more_pages:
