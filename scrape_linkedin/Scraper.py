@@ -27,12 +27,14 @@ class Scraper(object):
                 'Scraper is an abstract class and cannot be instantiated directly')
 
         if scraperInstance:
+            self.was_passed_instance = True
             self.driver = scraperInstance.driver
             self.scroll_increment = scraperInstance.scroll_increment
             self.timeout = scraperInstance.timeout
             self.scroll_pause = scraperInstance.scroll_pause
             return
 
+        self.was_passed_instance = False
         if not cookie:
             if 'LI_AT' not in environ:
                 raise ValueError(
@@ -105,5 +107,5 @@ class Scraper(object):
         self.quit()
 
     def quit(self):
-        if self.driver:
+        if self.driver and not self.was_passed_instance:
             self.driver.quit()
