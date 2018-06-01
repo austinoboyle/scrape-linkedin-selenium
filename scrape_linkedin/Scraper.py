@@ -2,6 +2,9 @@ import selenium.webdriver
 import time
 from os import environ
 from abc import abstractmethod
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 
 class Scraper(object):
@@ -18,11 +21,20 @@ class Scraper(object):
         - timeout {float}: time to wait for page to load first batch of async content
     """
 
-    def __init__(self, cookie=None, driver=selenium.webdriver.Chrome, driver_options={}, scroll_pause=0.1, scroll_increment=300, timeout=10):
+    def __init__(self, cookie=None, scraperInstance=None, driver=selenium.webdriver.Chrome, driver_options={}, scroll_pause=0.1, scroll_increment=300, timeout=10):
         if type(self) is Scraper:
             raise Exception(
                 'Scraper is an abstract class and cannot be instantiated directly')
 
+        if scraperInstance:
+            self.was_passed_instance = True
+            self.driver = scraperInstance.driver
+            self.scroll_increment = scraperInstance.scroll_increment
+            self.timeout = scraperInstance.timeout
+            self.scroll_pause = scraperInstance.scroll_pause
+            return
+
+        self.was_passed_instance = False
         if not cookie:
             if 'LI_AT' not in environ:
                 raise ValueError(
@@ -80,6 +92,14 @@ class Scraper(object):
             # Wait to load page
             time.sleep(self.scroll_pause)
 
+    def wait(self, condition):
+        return WebDriverWait(self.driver, self.timeout).until(condition)
+
+    def wait_for_el(self, selector):
+        return self.wait(EC.presence_of_element_located((
+            By.CSS_SELECTOR, selector
+        )))
+
     def __enter__(self):
         return self
 
@@ -87,5 +107,5 @@ class Scraper(object):
         self.quit()
 
     def quit(self):
-        if self.driver:
+        if self.driver and not self.was_passed_instance:
             self.driver.quit()
