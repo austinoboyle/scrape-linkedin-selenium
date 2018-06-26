@@ -25,7 +25,7 @@ from selenium.webdriver import Chrome
 @click.command()
 @click.option('--url', type=str, help='Url of the profile you want to scrape')
 @click.option('--user', type=str, help='Username portion of profile: (www.linkedin.com/in/<username>')
-@click.option('--driver', type=str, help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
+@click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 @click.option('--attribute', '-a', type=click.Choice(Profile.attributes))
 @click.option('--input_file', '-i', type=click.Path(exists=True), default=None,
               help='Path to html of the profile you wish to load')
