@@ -18,15 +18,21 @@ from .Profile import Profile
 from pprint import pprint
 import json
 import os
+from selenium.webdriver import Firefox
+from selenium.webdriver import Chrome
 
 
 @click.command()
 @click.option('--url', type=str, help='Url of the profile you want to scrape')
 @click.option('--user', type=str, help='Username portion of profile: (www.linkedin.com/in/<username>')
+@click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 @click.option('--attribute', '-a', type=click.Choice(Profile.attributes))
-@click.option('--input_file', '-i', type=click.Path(exists=True), default=None, help='Path to html of the profile you wish to load')
-@click.option('--output_file', '-o', type=click.Path(), default=None, help='Output file you want to write returned content to')
-def scrape(url, user, attribute, input_file, output_file):
+@click.option('--input_file', '-i', type=click.Path(exists=True), default=None,
+              help='Path to html of the profile you wish to load')
+@click.option('--output_file', '-o', type=click.Path(), default=None,
+              help='Output file you want to write returned content to')
+
+def scrape(url, user, attribute, input_file, output_file, driver):
     if user:
         url = 'http://www.linkedin.com/in/' + user
     if (url and input_file) or (not url and not input_file):
@@ -35,8 +41,12 @@ def scrape(url, user, attribute, input_file, output_file):
     elif url:
         if 'LI_AT' not in os.environ:
             raise ClickException("Must set LI_AT environment variable")
-        with ProfileScraper(cookie=os.environ['LI_AT']) as scraper:
-            profile = scraper.scrape(url=url)
+        if driver == 'Firefox':
+            with ProfileScraper(driver=Firefox, cookie=os.environ['LI_AT']) as scraper:
+                profile = scraper.scrape(url=url)
+        else:
+            with ProfileScraper(driver=Chrome, cookie=os.environ['LI_AT']) as scraper:
+                profile = scraper.scrape(url=url)
     else:
         with open(input_file, 'r') as html:
             profile = Profile(html)
