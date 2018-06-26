@@ -13,26 +13,26 @@ unauthenticated or unusual requests
 
 <!--ts-->
 
-*   [scrape_linkedin](#scrape_linkedin)
-    *   [Introduction](#introduction)
-    *   [Table of Contents](#table-of-contents)
-    *   [Installation](#installation)
-        *   [Install with pip](#install-with-pip)
-        *   [Install from source](#install-from-source)
-        *   [Tests](#tests)
-    *   [Getting &amp; Setting LI_AT](#getting--setting-li_at)
-        *   [Getting LI_AT](#getting-li_at)
-        *   [Setting LI_AT](#setting-li_at)
-    *   [Usage](#usage)
-        *   [Command Line](#command-line)
-        *   [Python Package](#python-package)
-            *   [Profiles](#profiles)
-            *   [Companies](#companies)
-            *   [Config](#config)
-    *   [Scraping in Parallel](#scraping-in-parallel)
-        *   [Example](#example)
-        *   [Configuration](#configuration)
-    *   [Issues](#issues)
+-   [scrape_linkedin](#scrape_linkedin)
+    -   [Introduction](#introduction)
+    -   [Table of Contents](#table-of-contents)
+    -   [Installation](#installation)
+        -   [Install with pip](#install-with-pip)
+        -   [Install from source](#install-from-source)
+        -   [Tests](#tests)
+    -   [Getting &amp; Setting LI_AT](#getting--setting-li_at)
+        -   [Getting LI_AT](#getting-li_at)
+        -   [Setting LI_AT](#setting-li_at)
+    -   [Usage](#usage)
+        -   [Command Line](#command-line)
+        -   [Python Package](#python-package)
+            -   [Profiles](#profiles)
+            -   [Companies](#companies)
+            -   [Config](#config)
+    -   [Scraping in Parallel](#scraping-in-parallel)
+        -   [Example](#example)
+        -   [Configuration](#configuration)
+    -   [Issues](#issues)
 
 <!-- Added by: austinoboyle, at: 2018-05-06T20:13-04:00 -->
 
@@ -77,8 +77,8 @@ to the selenium session.
 There are two ways to set your li_at cookie:
 
 1.  Set the LI_AT environment variable
-    *   `$ export LI_AT=YOUR_LI_AT_VALUE`
-    *   **On Windows**: `$ set LI_AT=YOUR_LI_AT_VALUE
+    -   `$ export LI_AT=YOUR_LI_AT_VALUE`
+    -   **On Windows**: `$ set LI_AT=YOUR_LI_AT_VALUE
 2.  Pass the cookie as a parameter to the Scraper object.
     > `>>> with ProfileScraper(cookie='YOUR_LI_AT_VALUE') as scraper:`
 
@@ -96,20 +96,21 @@ using [click](http://click.pocoo.org/5/).
 
 Options:
 
-*   --url : Full Url of the profile you want to scrape
-*   --user: www.linkedin.com/in/USER
-*   -a --attribute : return only a specific attribute (default: return all
+-   --url : Full Url of the profile you want to scrape
+-   --user: www.linkedin.com/in/USER
+-   --driver: choose Browser type to use (Chrome/Firefox), **default: Chrome**
+-   -a --attribute : return only a specific attribute (default: return all
     attributes)
-*   -i --input_file : Raw path to html file of the profile you want to scrape
-*   -o --output_file: Raw path to output file for structured json profile (just
+-   -i --input_file : Raw path to html file of the profile you want to scrape
+-   -o --output_file: Raw path to output file for structured json profile (just
     prints results by default)
-*   -h --help : Show this screen.
+-   -h --help : Show this screen.
 
 Examples:
 
-*   Get Austin O'Boyle's profile info: `$ scrapeli --user=austinoboyle`
-*   Get only the skills of Austin O'Boyle: `$ scrapeli --user=austinoboyle -a skills`
-*   Parse stored html profile and save json output: `$ scrapeli -i /path/file.html -o output.json`
+-   Get Austin O'Boyle's profile info: `$ scrapeli --user=austinoboyle`
+-   Get only the skills of Austin O'Boyle: `$ scrapeli --user=austinoboyle -a skills`
+-   Parse stored html profile and save json output: `$ scrapeli -i /path/file.html -o output.json`
 
 ### Python Package
 
@@ -140,29 +141,29 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
 
 **Structure of the fields scraped**
 
-*   personal_info
-    *   name
-    *   company
-    *   school
-    *   headline
-    *   followers
-    *   summary
-*   skills
-*   experiences
-    *   volunteering
-    *   jobs
-    *   education
-*   interests
-*   accomplishments
-    *   publications
-    *   cerfifications
-    *   patents
-    *   courses
-    *   projects
-    *   honors
-    *   test scores
-    *   languages
-    *   organizations
+-   personal_info
+    -   name
+    -   company
+    -   school
+    -   headline
+    -   followers
+    -   summary
+-   skills
+-   experiences
+    -   volunteering
+    -   jobs
+    -   education
+-   interests
+-   accomplishments
+    -   publications
+    -   cerfifications
+    -   patents
+    -   courses
+    -   projects
+    -   honors
+    -   test scores
+    -   languages
+    -   organizations
 
 #### Companies
 
@@ -190,18 +191,18 @@ a company profile. There will be three properties: overview, jobs, and life.
 
 **Structure of the fields scraped**
 
-*   overview
-    *   name
-    *   industry
-    *   description
-    *   location
-    *   website
-    *   year_founded
-    *   company_type
-    *   company_size
-    *   num_employees
-*   jobs **NOT YET IMPLEMENTED**
-*   life **NOT YET IMPLEMENTED**
+-   overview
+    -   name
+    -   industry
+    -   description
+    -   location
+    -   website
+    -   year_founded
+    -   company_type
+    -   company_size
+    -   num_employees
+-   jobs **NOT YET IMPLEMENTED**
+-   life **NOT YET IMPLEMENTED**
 
 #### config
 
@@ -209,18 +210,18 @@ Pass these keyword arguments into the constructor of your Scraper to override
 default values. You may (for example) want to decrease/increase the timeout if
 your internet is very fast/slow.
 
-*   _cookie_ **`{str}`**: li_at cookie value (overrides env variable)
-    *   **default: `None`**
-*   _driver_ **`{selenium.webdriver}`**: driver type to use
-    *   **default: `selenium.webdriver.Chrome`**
-*   _driver_options_ **`{dict}`**: kwargs to pass to driver constructor
-    *   **default: `{}`**
-*   _scroll_pause_ **`{float}`**: time(s) to pause during scroll increments
-    *   **default: `0.1`**
-*   _scroll_increment_ **`{int}`** num pixels to scroll down each time
-    *   **default: `300`**
-*   _timeout_ **`{float}`**: default time to wait for async content to load
-    *   **default: `10`**
+-   _cookie_ **`{str}`**: li_at cookie value (overrides env variable)
+    -   **default: `None`**
+-   _driver_ **`{selenium.webdriver}`**: driver type to use
+    -   **default: `selenium.webdriver.Chrome`**
+-   _driver_options_ **`{dict}`**: kwargs to pass to driver constructor
+    -   **default: `{}`**
+-   _scroll_pause_ **`{float}`**: time(s) to pause during scroll increments
+    -   **default: `0.1`**
+-   _scroll_increment_ **`{int}`** num pixels to scroll down each time
+    -   **default: `300`**
+-   _timeout_ **`{float}`**: default time to wait for async content to load
+    -   **default: `10`**
 
 ## Scraping in Parallel
 
@@ -248,17 +249,17 @@ scrape_in_parallel(
 
 **Parameters:**
 
-*   _scraper_type_ **`{scrape_linkedin.Scraper}`**: Scraper to use
-*   _items_ **`{list}`**: List of items to be scraped
-*   _output_file_ **`{str}`**: path to output file
-*   _num_instances_ **`{int}`**: number of parallel instances of selenium to run
-*   _temp_dir_ **`{str}`**: name of temporary directory to use to store data from intermediate steps
-    *   **default: 'tmp_data'**
-*   _driver_ {selenium.webdriver}: driver to use for scraping
-    *   **default: selenium.webdriver.Chrome**
-*   _driver_options_ **`{dict}`**: dict of keyword arguments to pass to the driver function.
-    *   **default: scrape_linkedin.utils.HEADLESS_OPTIONS**
-*   _\*\*kwargs_ **`{any}`**: extra keyword arguments to pass to the `scraper_type` constructor for each job
+-   _scraper_type_ **`{scrape_linkedin.Scraper}`**: Scraper to use
+-   _items_ **`{list}`**: List of items to be scraped
+-   _output_file_ **`{str}`**: path to output file
+-   _num_instances_ **`{int}`**: number of parallel instances of selenium to run
+-   _temp_dir_ **`{str}`**: name of temporary directory to use to store data from intermediate steps
+    -   **default: 'tmp_data'**
+-   _driver_ {selenium.webdriver}: driver to use for scraping
+    -   **default: selenium.webdriver.Chrome**
+-   _driver_options_ **`{dict}`**: dict of keyword arguments to pass to the driver function.
+    -   **default: scrape_linkedin.utils.HEADLESS_OPTIONS**
+-   _\*\*kwargs_ **`{any}`**: extra keyword arguments to pass to the `scraper_type` constructor for each job
 
 ## Issues
 
