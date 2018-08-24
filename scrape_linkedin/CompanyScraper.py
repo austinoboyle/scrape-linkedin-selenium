@@ -11,27 +11,30 @@ from .utils import AnyEC
 
 
 class CompanyScraper(Scraper):
-    def scrape(self, url='', company=None):
+    def scrape(self, url='', company=None, overview_only=True):
         # Get Overview
         self.load_initial(url, company)
         overview_html = self.driver.find_element_by_css_selector(
             '.organization-outlet').get_attribute('outerHTML')
+        jobs_html = ''
+        life_html = ''
 
         # Get job Info
-        try:
-            self.load_jobs()
-            jobs_html = self.driver.find_element_by_css_selector(
-                '.org-jobs-container').get_attribute('outerHTML')
-        except:
-            jobs_html = ''
+        if not overview_only:
+            try:
+                self.load_jobs()
+                jobs_html = self.driver.find_element_by_css_selector(
+                    '.org-jobs-container').get_attribute('outerHTML')
+            except:
+                print("UNABLE TO GET JOB INFO")
 
-        # Get Life Info
-        try:
-            self.load_life()
-            life_html = self.driver.find_element_by_css_selector(
-                '.org-life').get_attribute('outerHTML')
-        except:
-            life_html = ''
+            # Get Life Info
+            try:
+                self.load_life()
+                life_html = self.driver.find_element_by_css_selector(
+                    '.org-life').get_attribute('outerHTML')
+            except:
+                print("UNABLE TO GET LIFE INFO")
         return Company(overview_html, jobs_html, life_html)
 
     def load_initial(self, url, company=None):
