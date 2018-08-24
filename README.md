@@ -13,26 +13,27 @@ unauthenticated or unusual requests
 
 <!--ts-->
 
--   [scrape_linkedin](#scrape_linkedin)
-    -   [Introduction](#introduction)
-    -   [Table of Contents](#table-of-contents)
-    -   [Installation](#installation)
-        -   [Install with pip](#install-with-pip)
-        -   [Install from source](#install-from-source)
-        -   [Tests](#tests)
-    -   [Getting &amp; Setting LI_AT](#getting--setting-li_at)
-        -   [Getting LI_AT](#getting-li_at)
-        -   [Setting LI_AT](#setting-li_at)
-    -   [Usage](#usage)
-        -   [Command Line](#command-line)
-        -   [Python Package](#python-package)
-            -   [Profiles](#profiles)
-            -   [Companies](#companies)
-            -   [Config](#config)
-    -   [Scraping in Parallel](#scraping-in-parallel)
-        -   [Example](#example)
-        -   [Configuration](#configuration)
-    -   [Issues](#issues)
+- [scrape_linkedin](#scrapelinkedin)
+    - [Introduction](#introduction)
+    - [Table of Contents](#table-of-contents)
+    - [Installation](#installation)
+        - [Install with pip](#install-with-pip)
+        - [Install from source](#install-from-source)
+        - [Tests](#tests)
+    - [Getting & Setting LI_AT](#getting--setting-liat)
+        - [Getting LI_AT](#getting-liat)
+        - [Setting LI_AT](#setting-liat)
+    - [Examples](#examples)
+    - [Usage](#usage)
+        - [Command Line](#command-line)
+        - [Python Package](#python-package)
+            - [Profiles](#profiles)
+            - [Companies](#companies)
+            - [config](#config)
+    - [Scraping in Parallel](#scraping-in-parallel)
+        - [Example](#example)
+        - [Configuration](#configuration)
+    - [Issues](#issues)
 
 <!-- Added by: austinoboyle, at: 2018-05-06T20:13-04:00 -->
 
@@ -84,6 +85,10 @@ There are two ways to set your li_at cookie:
 
 A cookie value passed directly to the Scraper **will override your
 environment variable** if both are set.
+
+## Examples
+
+See [`/examples`](https://github.com/austinoboyle/scrape-linkedin-selenium/tree/master/examples)
 
 ## Usage
 
