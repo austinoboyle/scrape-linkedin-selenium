@@ -8,6 +8,10 @@ options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
 
 
+def flatten_list(l):
+    return [item for sublist in l for item in sublist]
+
+
 def split_lists(lst, num):
     k, m = divmod(len(lst), num)
     return [lst[i * k + min(i, m): (i+1) * k + min(i + 1, m)] for i in range(num)]
@@ -45,7 +49,7 @@ def one_or_default(element, selector, default=None):
         - selector {str}: css selector to search for
         - default {any}: default return value
 
-    Returns: 
+    Returns:
         beautifulsoup element if match is found, otherwise return the default
     """
     try:
@@ -74,7 +78,7 @@ def all_or_default(element, selector, default=[]):
         - selector: str css selector to search for
         - default: default value if there is an error or no elements found
 
-    Returns: 
+    Returns:
         {list}: list of all matching elements if any are found, otherwise return
         the default value
     """
@@ -106,21 +110,39 @@ def get_info(element, mapping, default=None):
 
 def get_job_info(job):
     """
-    Returns: 
+    Returns:
         dict of job's title, company, date_range, location, description
     """
-    return get_info(job, {
-        'title': '.pv-entity__summary-info h3:nth-of-type(1)',
-        'company': '.pv-entity__secondary-title',
-        'date_range': '.pv-entity__date-range span:nth-of-type(2)',
-        'location': '.pv-entity__location span:nth-of-type(2)',
-        'description': '.pv-entity__description'
-    })
+    multiple_positions = all_or_default(
+        job, '.pv-entity__role-details-container')
+
+    # Handle UI case where user has muttiple consec roles at same company
+    if (multiple_positions):
+        company = text_or_default(job,
+                                  '.pv-entity__company-summary-info > h3 > span:nth-of-type(2)')
+        multiple_positions = list(map(lambda pos: get_info(pos, {
+            'title': '.pv-entity__summary-info-v2 > h3 > span:nth-of-type(2)',
+            'date_range': '.pv-entity__date-range span:nth-of-type(2)',
+            'location': '.pv-entity__location > span:nth-of-type(2)',
+            'description': '.pv-entity__description'
+        }), multiple_positions))
+        for pos in multiple_positions:
+            pos['company'] = company
+        return multiple_positions
+
+    else:
+        return [get_info(job, {
+            'title': '.pv-entity__summary-info h3:nth-of-type(1)',
+            'company': '.pv-entity__secondary-title',
+            'date_range': '.pv-entity__date-range span:nth-of-type(2)',
+            'location': '.pv-entity__location span:nth-of-type(2)',
+            'description': '.pv-entity__description'
+        })]
 
 
 def get_school_info(school):
     """
-    Returns: 
+    Returns:
         dict of school name, degree, grades, field_of_study, date_range, &
         extra-curricular activities
     """
@@ -136,7 +158,7 @@ def get_school_info(school):
 
 def get_volunteer_info(exp):
     """
-    Returns: 
+    Returns:
         dict of title, company, date_range, location, cause, & description
     """
     return get_info(exp, {
