@@ -42,6 +42,7 @@ class Profile(ResultsObject):
         jobs = all_or_default(
             container, '#experience-section ul .pv-position-entity')
         jobs = list(map(get_job_info, jobs))
+        jobs = flatten_list(jobs)
         experiences['jobs'] = jobs
 
         schools = all_or_default(
