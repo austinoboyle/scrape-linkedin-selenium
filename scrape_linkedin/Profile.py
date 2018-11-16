@@ -12,6 +12,7 @@ class Profile(ResultsObject):
     def personal_info(self):
         """Return dict of personal info about the user"""
         top_card = one_or_default(self.soup, 'section.pv-top-card-section')
+        contact_info = one_or_default(self.soup, '.pv-contact-info')
 
         personal_info = get_info(top_card, {
             'name': '.pv-top-card-section__name',
@@ -19,12 +20,23 @@ class Profile(ResultsObject):
             'company': '.pv-top-card-v2-section__company-name',
             'school': '.pv-top-card-v2-section__school-name',
             'location': '.pv-top-card-section__location',
-            'summary': 'p.pv-top-card-section__summary-text'
+            'summary': 'p.pv-top-card-section__summary-text',
         })
         followers_text = text_or_default(self.soup,
                                          '.pv-recent-activity-section__follower-count-text', '')
         personal_info['followers'] = followers_text.replace(
             'followers', '').strip()
+
+        # print(contact_info)
+        personal_info.update(get_info(contact_info, {
+            'email': '.ci-email .pv-contact-info__ci-container',
+            'phone': '.ci-phone .pv-contact-info__ci-container',
+            'connected': '.ci-connected .pv-contact-info__ci-container'
+        }))
+
+        websites = contact_info.select('.ci-websites li a')
+        websites = list(map(lambda x: x['href'], websites))
+        personal_info['websites'] = websites
         return personal_info
 
     @property

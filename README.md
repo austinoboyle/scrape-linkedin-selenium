@@ -153,6 +153,10 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     -   headline
     -   followers
     -   summary
+    -   websites
+    -   email
+    -   phone
+    -   connected
 -   skills
 -   experiences
     -   volunteering

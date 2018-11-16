@@ -62,7 +62,21 @@ class ProfileScraper(Scraper):
     def get_profile(self):
         profile = self.driver.find_element_by_id(
             'profile-wrapper').get_attribute("outerHTML")
-        return Profile(profile)
+        contact_info = self.get_contact_info()
+        return Profile(profile + contact_info)
+
+    def get_contact_info(self):
+        try:
+            # Scroll to top to put clickable button in view
+            self.driver.execute_script("window.scrollTo(0, 0);")
+            button = self.driver.find_element_by_css_selector(
+                '.pv-top-card-v2-section__contact-info')
+            button.click()
+            contact_info = self.wait_for_el('.pv-contact-info')
+            return contact_info.get_attribute('outerHTML')
+        except Exception as e:
+            print(e)
+            return ""
 
     def get_mutual_connections(self):
         try:
