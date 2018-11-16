@@ -11,9 +11,9 @@ from .utils import AnyEC
 
 
 class CompanyScraper(Scraper):
-    def scrape(self, url='', company=None, overview_only=True):
+    def scrape(self, company, overview_only=True):
         # Get Overview
-        self.load_initial(url, company)
+        self.load_initial(company)
         overview_html = self.driver.find_element_by_css_selector(
             '.organization-outlet').get_attribute('outerHTML')
         jobs_html = ''
@@ -37,11 +37,8 @@ class CompanyScraper(Scraper):
                 print("UNABLE TO GET LIFE INFO")
         return Company(overview_html, jobs_html, life_html)
 
-    def load_initial(self, url, company=None):
-        if company:
-            url = 'https://www.linkedin.com/company/{}/'.format(company)
-        if 'com/company/' not in url:
-            raise ValueError("Url must look like ...linkedin.com/company/NAME")
+    def load_initial(self, company):
+        url = 'https://www.linkedin.com/company/{}/about'.format(company)
 
         self.driver.get(url)
         try:

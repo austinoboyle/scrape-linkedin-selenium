@@ -9,7 +9,7 @@ class Company(ResultsObject):
 
     attributes = ['overview', 'jobs', 'life']
 
-    def __init__(self, overview, jobs, life):
+    def __init__(self, overview, jobs="", life=""):
         self.overview_soup = BeautifulSoup(overview, 'html.parser')
         self.jobs_soup = BeautifulSoup(overview, 'html.parser')
         self.life_soup = BeautifulSoup(overview, 'html.parser')
@@ -17,25 +17,29 @@ class Company(ResultsObject):
     @property
     def overview(self):
         """Return dict of the overview section of the Linkedin Page"""
+
+        # Banner containing company Name + Location
         banner = one_or_default(
-            self.overview_soup, 'div.org-top-card-module__container')
+            self.overview_soup, '.org-top-card')
+
+        # Main container with company overview info
         container = one_or_default(
-            self.overview_soup, 'section.org-about-company-module')
+            self.overview_soup, '.org-grid__core-rail')
 
-        overview = get_info(container, {
-            'description': '.org-about-us-organization-description__text',
-            'website': '.org-about-us-company-module__website',
-            'location': '.org-about-company-module__headquarters',
-            'year_founded': '.org-about-company-module__founded',
-            'company_type': '.org-about-company-module__company-type',
-            'company_size': '.org-about-company-module__company-staff-count-range',
-            'specialties': '.org-about-company-module__specialities'
-        })
+        overview = {}
+        overview['description'] = container.select_one(
+            'section > p').get_text().strip()
 
-        overview.update(get_info(banner, {
-            'name': '.org-top-card-module__name',
-            'industry': '.company-industries'
-        }))
+        metadata_keys = container.select('.org-page-details__definition-term')
+        metadata_values = container.select(
+            '.org-page-details__definition-text')
+        overview.update(
+            get_info(banner, {'name': '.org-top-card-primary-content__title'}))
+
+        for key, val in zip(metadata_keys, metadata_values):
+            dict_key = key.get_text().strip().lower().replace(" ", "_")
+            dict_val = val.get_text().strip()
+            overview[dict_key] = dict_val
 
         all_employees_links = all_or_default(
             banner, '.org-company-employees-snackbar__details-highlight')
