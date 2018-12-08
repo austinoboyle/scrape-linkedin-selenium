@@ -60,8 +60,12 @@ class ProfileScraper(Scraper):
         self.scroll_to_bottom()
 
     def get_profile(self):
-        profile = self.driver.find_element_by_id(
-            'profile-wrapper').get_attribute("outerHTML")
+        try:
+            profile = self.driver.find_element_by_id(
+                'profile-wrapper').get_attribute("outerHTML")
+        except:
+            raise Exception(
+                "Could not find profile wrapper html. This sometimes happens for exceptionally long profiles.  Try decreasing scroll-increment.")
         contact_info = self.get_contact_info()
         return Profile(profile + contact_info)
 
