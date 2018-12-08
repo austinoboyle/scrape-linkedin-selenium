@@ -15,6 +15,7 @@ import click
 from click import ClickException
 from .ProfileScraper import ProfileScraper
 from .Profile import Profile
+from .utils import HEADLESS_OPTIONS
 from pprint import pprint
 import json
 import os
@@ -29,10 +30,13 @@ from selenium.webdriver import Chrome
 @click.option('--attribute', '-a', type=click.Choice(Profile.attributes))
 @click.option('--input_file', '-i', type=click.Path(exists=True), default=None,
               help='Path to html of the profile you wish to load')
+@click.option('--headless', is_flag=True)
 @click.option('--output_file', '-o', type=click.Path(), default=None,
               help='Output file you want to write returned content to')
-
-def scrape(url, user, attribute, input_file, output_file, driver):
+def scrape(url, user, attribute, input_file, headless, output_file, driver):
+    driver_options = {}
+    if headless:
+        driver_options = HEADLESS_OPTIONS
     if user:
         url = 'http://www.linkedin.com/in/' + user
     if (url and input_file) or (not url and not input_file):
@@ -42,10 +46,10 @@ def scrape(url, user, attribute, input_file, output_file, driver):
         if 'LI_AT' not in os.environ:
             raise ClickException("Must set LI_AT environment variable")
         if driver == 'Firefox':
-            with ProfileScraper(driver=Firefox, cookie=os.environ['LI_AT']) as scraper:
+            with ProfileScraper(driver=Firefox, cookie=os.environ['LI_AT'], driver_options=driver_options) as scraper:
                 profile = scraper.scrape(url=url)
         else:
-            with ProfileScraper(driver=Chrome, cookie=os.environ['LI_AT']) as scraper:
+            with ProfileScraper(driver=Chrome, cookie=os.environ['LI_AT'], driver_options=driver_options) as scraper:
                 profile = scraper.scrape(url=url)
     else:
         with open(input_file, 'r') as html:

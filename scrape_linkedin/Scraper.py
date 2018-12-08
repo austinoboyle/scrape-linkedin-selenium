@@ -45,7 +45,7 @@ class Scraper(object):
         self.scroll_increment = scroll_increment
         self.timeout = timeout
         self.driver.get('http://www.linkedin.com')
-        self.driver.set_window_size(1200, 1000)
+        self.driver.set_window_size(1920, 1080)
         self.driver.add_cookie({
             'name': 'li_at',
             'value': cookie,
