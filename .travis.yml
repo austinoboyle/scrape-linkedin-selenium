@@ -13,7 +13,7 @@ before_install:
     - "wget -N
     https://chromedriver.storage.googleapis.com/2.45/chromedriver_linux64.zip"
     - unzip chromedriver_linux64.zip -d ~/
-    - rm ~/chromedriver_linux64.zip
+    - rm chromedriver_linux64.zip
     - sudo mv -f ~/chromedriver /usr/local/share
     - sudo chmod +x /usr/local/share/chromedriver
     - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
