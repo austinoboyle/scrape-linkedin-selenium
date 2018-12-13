@@ -17,6 +17,11 @@ class ProfileScraper(Scraper):
     details about the constructor.
     """
 
+    def scrape_by_email(self, email):
+        self.load_profile_page(
+            'https://www.linkedin.com/sales/gmail/profile/proxy/{}'.format(email))
+        return self.get_profile()
+
     def scrape(self, url='', user=None):
         self.load_profile_page(url, user)
         return self.get_profile()
@@ -31,9 +36,9 @@ class ProfileScraper(Scraper):
         """
         if user:
             url = 'http://www.linkedin.com/in/' + user
-        if 'com/in/' not in url:
-            raise ValueError("Url must look like ...linkedin.com/in/NAME")
-        self.current_profile = url.split(r'com/in/')[1]
+        if 'com/in/' not in url and 'sales/gmail/profile/proxy/' not in url:
+            raise ValueError(
+                "Url must look like... .com/in/NAME or... '.com/sales/gmail/profile/proxy/EMAIL")
         self.driver.get(url)
         # Wait for page to load dynamically via javascript
         try:
@@ -48,7 +53,10 @@ class ProfileScraper(Scraper):
                 """Took too long to load profile.  Common problems/solutions:
                 1. Invalid LI_AT value: ensure that yours is correct (they
                    update frequently)
-                2. Slow Internet: increase the timeout parameter in the Scraper constructor""")
+                2. Slow Internet: increase the time out parameter in the Scraper
+                   constructor
+                3. Invalid e-mail address (or user does not allow e-mail scrapes) on scrape_by_email call
+                """)
 
         # Check if we got the 'profile unavailable' page
         try:
