@@ -11,8 +11,8 @@ class Company(ResultsObject):
 
     def __init__(self, overview, jobs="", life=""):
         self.overview_soup = BeautifulSoup(overview, 'html.parser')
-        self.jobs_soup = BeautifulSoup(overview, 'html.parser')
-        self.life_soup = BeautifulSoup(overview, 'html.parser')
+        self.jobs_soup = BeautifulSoup(jobs, 'html.parser')
+        self.life_soup = BeautifulSoup(life, 'html.parser')
 
     @property
     def overview(self):

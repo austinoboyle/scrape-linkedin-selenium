@@ -6,10 +6,7 @@ from os import path
 file_path = path.abspath(__file__)
 DIR = path.dirname(file_path)
 
-global profile_soup
-global basic_soup
-
-with open(path.join(DIR, 'profile.html'), 'r') as f1, open(path.join(DIR, 'test.html'), 'r') as f2:
+with open(path.join(DIR, 'html_files/profile.html'), 'r') as f1, open(path.join(DIR, 'test.html'), 'r') as f2:
     profile_soup = BS(f1.read(), 'html.parser')
     basic_soup = BS(f2.read(), 'html.parser')
 
