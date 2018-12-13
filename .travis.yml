@@ -1,5 +1,6 @@
 dist: trusty
 language: python
+sudo: true
 python:
   - "2.7"
   - "3.6"
@@ -9,6 +10,13 @@ before_install:
     - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid
     --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0
     1920x1080x16"
+    - "wget -N
+    https://chromedriver.storage.googleapis.com/2.45/chromedriver_linux64.zip"
+    - unzip chromedriver_linux64.zip -d ~/
+    - rm ~/chromedriver_linux64.zip
+    - sudo mv -f ~/chromedriver /usr/local/share
+    - sudo chmod +x /usr/local/share/chromedriver
+    - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
     - sleep 3
 install:
   - pip install -r requirements.txt
