@@ -14,26 +14,26 @@ unauthenticated or unusual requests
 <!--ts-->
 
 - [scrape_linkedin](#scrapelinkedin)
-    - [Introduction](#introduction)
-    - [Table of Contents](#table-of-contents)
-    - [Installation](#installation)
-        - [Install with pip](#install-with-pip)
-        - [Install from source](#install-from-source)
-        - [Tests](#tests)
-    - [Getting & Setting LI_AT](#getting--setting-liat)
-        - [Getting LI_AT](#getting-liat)
-        - [Setting LI_AT](#setting-liat)
-    - [Examples](#examples)
-    - [Usage](#usage)
-        - [Command Line](#command-line)
-        - [Python Package](#python-package)
-            - [Profiles](#profiles)
-            - [Companies](#companies)
-            - [config](#config)
-    - [Scraping in Parallel](#scraping-in-parallel)
-        - [Example](#example)
-        - [Configuration](#configuration)
-    - [Issues](#issues)
+  - [Introduction](#introduction)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+    - [Install with pip](#install-with-pip)
+    - [Install from source](#install-from-source)
+    - [Tests](#tests)
+  - [Getting & Setting LI_AT](#getting--setting-liat)
+    - [Getting LI_AT](#getting-liat)
+    - [Setting LI_AT](#setting-liat)
+  - [Examples](#examples)
+  - [Usage](#usage)
+    - [Command Line](#command-line)
+    - [Python Package](#python-package)
+      - [Profiles](#profiles)
+      - [Companies](#companies)
+      - [config](#config)
+  - [Scraping in Parallel](#scraping-in-parallel)
+    - [Example](#example)
+    - [Configuration](#configuration)
+  - [Issues](#issues)
 
 <!-- Added by: austinoboyle, at: 2018-05-06T20:13-04:00 -->
 
@@ -157,6 +157,8 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     -   email
     -   phone
     -   connected
+    -   current_company_url
+    -   image
 -   skills
 -   experiences
     -   volunteering
@@ -211,6 +213,7 @@ a company profile. There will be three properties: overview, jobs, and life.
     -   industry
     -   num_employees
     -   type
+    -   image
 -   jobs **NOT YET IMPLEMENTED**
 -   life **NOT YET IMPLEMENTED**
 

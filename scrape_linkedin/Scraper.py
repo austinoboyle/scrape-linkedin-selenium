@@ -5,6 +5,7 @@ from abc import abstractmethod
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 
 class Scraper(object):
@@ -35,26 +36,38 @@ class Scraper(object):
             return
 
         self.was_passed_instance = False
-        if not cookie:
-            if 'LI_AT' not in environ:
-                raise ValueError(
-                    'Must either define LI_AT environment variable, or pass a cookie string to the Scraper')
-            cookie = environ['LI_AT']
         self.driver = driver(**driver_options)
         self.scroll_pause = scroll_pause
         self.scroll_increment = scroll_increment
         self.timeout = timeout
         self.driver.get('http://www.linkedin.com')
         self.driver.set_window_size(1920, 1080)
-        self.driver.add_cookie({
-            'name': 'li_at',
-            'value': cookie,
-            'domain': '.linkedin.com'
-        })
+
+        if 'LI_EMAIL' in environ and 'LI_PASS' in environ:
+            self.login(environ['LI_EMAIL'], environ['LI_PASS'])
+        else:
+            if not cookie and 'LI_AT' not in environ:
+                raise ValueError(
+                    'Must either define LI_AT environment variable, or pass a cookie string to the Scraper')
+            cookie = environ['LI_AT']
+            self.driver.add_cookie({
+                'name': 'li_at',
+                'value': cookie,
+                'domain': '.linkedin.com'
+            })
 
     @abstractmethod
     def scrape(self):
         raise Exception('Must override abstract method scrape')
+
+    def login(self, email, password):
+        email_input = self.driver.find_element_by_css_selector(
+            'input.login-email')
+        password_input = self.driver.find_element_by_css_selector(
+            'input.login-password')
+        email_input.send_keys(email)
+        password_input.send_keys(password)
+        password_input.send_keys(Keys.ENTER)
 
     def get_html(self, url):
         self.load_profile_page(url)

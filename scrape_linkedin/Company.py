@@ -11,8 +11,8 @@ class Company(ResultsObject):
 
     def __init__(self, overview, jobs="", life=""):
         self.overview_soup = BeautifulSoup(overview, 'html.parser')
-        self.jobs_soup = BeautifulSoup(overview, 'html.parser')
-        self.life_soup = BeautifulSoup(overview, 'html.parser')
+        self.jobs_soup = BeautifulSoup(jobs, 'html.parser')
+        self.life_soup = BeautifulSoup(life, 'html.parser')
 
     @property
     def overview(self):
@@ -54,6 +54,11 @@ class Company(ResultsObject):
             overview['num_employees'] = int(match.group(1).replace(',', ''))
         else:
             overview['num_employees'] = None
+
+        logo_image_tag = one_or_default(
+            banner, '.org-top-card-primary-content__logo')
+        overview['image'] = logo_image_tag['src'] if logo_image_tag else ''
+
         return overview
 
     @property

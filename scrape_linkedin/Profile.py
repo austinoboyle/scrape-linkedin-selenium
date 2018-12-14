@@ -1,5 +1,6 @@
 from .utils import *
 from .ResultsObject import ResultsObject
+import re
 
 
 class Profile(ResultsObject):
@@ -20,8 +21,24 @@ class Profile(ResultsObject):
             'company': '.pv-top-card-v2-section__company-name',
             'school': '.pv-top-card-v2-section__school-name',
             'location': '.pv-top-card-section__location',
-            'summary': 'p.pv-top-card-section__summary-text',
+            'summary': 'p.pv-top-card-section__summary-text'
         })
+
+        image_div = one_or_default(top_card, '.profile-photo-edit__preview')
+        image_url = ''
+        # print(image_div)
+        if image_div:
+            image_url = image_div['src']
+        else:
+            image_div = one_or_default(top_card, '.pv-top-card-section__photo')
+            style_string = image_div['style']
+            pattern = re.compile('background-image: url\("(.*?)"')
+            matches = pattern.match(style_string).groups()
+            if matches:
+                image_url = matches[0]
+
+        personal_info['image'] = image_url
+
         followers_text = text_or_default(self.soup,
                                          '.pv-recent-activity-section__follower-count', '')
         personal_info['followers'] = followers_text.replace(
@@ -55,6 +72,7 @@ class Profile(ResultsObject):
             container, '#experience-section ul .pv-position-entity')
         jobs = list(map(get_job_info, jobs))
         jobs = flatten_list(jobs)
+
         experiences['jobs'] = jobs
 
         schools = all_or_default(
@@ -122,3 +140,11 @@ class Profile(ResultsObject):
         interests = map(lambda i: text_or_default(
             i, '.pv-entity__summary-title'), interests)
         return list(interests)
+
+    def to_dict(self):
+        info = super(Profile, self).to_dict()
+        info['personal_info']['current_company_link'] = ''
+        jobs = info['experiences']['jobs']
+        if jobs and 'present' in jobs[0]['date_range'].lower():
+            info['personal_info']['current_company_link'] = jobs[0]['li_company_url']
+        return info
