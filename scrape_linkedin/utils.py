@@ -2,6 +2,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.expected_conditions import _find_element
 
 import math
+import re
 
 options = Options()
 options.add_argument('--headless')
@@ -120,6 +121,14 @@ def get_job_info(job):
     if (multiple_positions):
         company = text_or_default(job,
                                   '.pv-entity__company-summary-info > h3 > span:nth-of-type(2)')
+
+        company_href = one_or_default(
+            job, 'a[data-control-name="background_details_company"]')['href']
+        pattern = re.compile('^/company/.*?/$')
+        if pattern.match(company_href):
+            li_company_url = 'https://www.linkedin.com/' + company_href
+        else:
+            li_company_url = ''
         multiple_positions = list(map(lambda pos: get_info(pos, {
             'title': '.pv-entity__summary-info-v2 > h3 > span:nth-of-type(2)',
             'date_range': '.pv-entity__date-range span:nth-of-type(2)',
@@ -128,16 +137,27 @@ def get_job_info(job):
         }), multiple_positions))
         for pos in multiple_positions:
             pos['company'] = company
+            pos['li_company_url'] = li_company_url
+
         return multiple_positions
 
     else:
-        return [get_info(job, {
+        job_info = get_info(job, {
             'title': '.pv-entity__summary-info h3:nth-of-type(1)',
             'company': '.pv-entity__secondary-title',
             'date_range': '.pv-entity__date-range span:nth-of-type(2)',
             'location': '.pv-entity__location span:nth-of-type(2)',
-            'description': '.pv-entity__description'
-        })]
+            'description': '.pv-entity__description',
+        })
+        company_href = one_or_default(
+            job, 'a[data-control-name="background_details_company"]')['href']
+        pattern = re.compile('^/company/.*?/$')
+        if pattern.match(company_href):
+            job_info['li_company_url'] = 'https://www.linkedin.com/' + company_href
+        else:
+            job_info['li_company_url'] = ''
+
+        return [job_info]
 
 
 def get_school_info(school):
