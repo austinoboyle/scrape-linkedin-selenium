@@ -157,7 +157,7 @@ a profile. Also has a to_dict() method that returns all of the data as a dict
     -   email
     -   phone
     -   connected
-    -   current_company_url
+    -   current_company_link
     -   image
 -   skills
 -   experiences

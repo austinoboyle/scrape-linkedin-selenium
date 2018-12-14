@@ -153,7 +153,7 @@ def get_job_info(job):
             job, 'a[data-control-name="background_details_company"]')['href']
         pattern = re.compile('^/company/.*?/$')
         if pattern.match(company_href):
-            job_info['li_company_url'] = 'https://www.linkedin.com/' + company_href
+            job_info['li_company_url'] = 'https://www.linkedin.com' + company_href
         else:
             job_info['li_company_url'] = ''
 
