@@ -54,6 +54,11 @@ class Company(ResultsObject):
             overview['num_employees'] = int(match.group(1).replace(',', ''))
         else:
             overview['num_employees'] = None
+
+        logo_image_tag = one_or_default(
+            banner, '.org-top-card-primary-content__logo')
+        overview['logo_url'] = logo_image_tag['src'] if logo_image_tag else ''
+
         return overview
 
     @property

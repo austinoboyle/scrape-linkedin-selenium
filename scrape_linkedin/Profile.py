@@ -72,6 +72,7 @@ class Profile(ResultsObject):
             container, '#experience-section ul .pv-position-entity')
         jobs = list(map(get_job_info, jobs))
         jobs = flatten_list(jobs)
+
         experiences['jobs'] = jobs
 
         schools = all_or_default(
@@ -139,3 +140,11 @@ class Profile(ResultsObject):
         interests = map(lambda i: text_or_default(
             i, '.pv-entity__summary-title'), interests)
         return list(interests)
+
+    def to_dict(self):
+        info = super(Profile, self).to_dict()
+        info['personal_info']['current_company_link'] = ''
+        jobs = info['experiences']['jobs']
+        if jobs and 'present' in jobs[0]['date_range'].lower():
+            info['personal_info']['current_company_link'] = jobs[0]['li_company_url']
+        return info
