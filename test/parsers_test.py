@@ -15,7 +15,8 @@ def test_company_overview():
         "founded": "2004",
         "industry": "Internet",
         "headquarters": "Menlo Park, CA",
-        "website": "http://www.facebook.com/careers"
+        "website": "http://www.facebook.com/careers",
+        "image": "https://media.licdn.com/dms/image/C4E0BAQHl6azR037YeA/company-logo_400_400/0?e=1552521600&v=beta&t=wnxwi0DnjhdkZLWfkHhlRLWwYbaeGUBOpiSA8MefuAs"
     }
     with open(path.join(DIR, 'html_files/facebook_overview.html'), 'r') as f:
         company = Company(f.read(), '', '').to_dict()

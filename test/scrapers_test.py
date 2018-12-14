@@ -68,6 +68,6 @@ def test_company_scraper():
     overview = company.overview
     assert overview
     overview_fields = ['specialties', 'founded', 'website', 'description', 'name',
-                       'num_employees', 'industry', 'type', 'company_size', 'headquarters']
+                       'num_employees', 'industry', 'type', 'company_size', 'headquarters', 'image']
     for a in overview_fields:
         assert overview[a]
