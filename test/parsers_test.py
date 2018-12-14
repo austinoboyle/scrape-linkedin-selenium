@@ -41,6 +41,7 @@ def test_image_url():
         my_profile_html = f.read()
     with open(path.join(DIR, 'html_files/otherProfile.html'), 'r') as f:
         other_profile_html = f.read()
-    my_info = Profile(my_profile_html).personal_info
-    other_info = Profile(other_profile_html).personal_info
-    assert my_info['image'] and other_info['image']
+    my_info = Profile(my_profile_html).to_dict()
+    other_info = Profile(other_profile_html).to_dict()
+    assert my_info['personal_info']['image'] and other_info['personal_info']['image']
+    assert my_info['experiences']['jobs'][0]['li_company_url']
