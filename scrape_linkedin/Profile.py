@@ -1,5 +1,6 @@
 from .utils import *
 from .ResultsObject import ResultsObject
+import re
 
 
 class Profile(ResultsObject):
@@ -20,8 +21,25 @@ class Profile(ResultsObject):
             'company': '.pv-top-card-v2-section__company-name',
             'school': '.pv-top-card-v2-section__school-name',
             'location': '.pv-top-card-section__location',
-            'summary': 'p.pv-top-card-section__summary-text',
+            'summary': 'p.pv-top-card-section__summary-text'
         })
+
+        image_div = one_or_default(top_card, '.profile-photo-edit__preview')
+        image_url = ''
+        # print(image_div)
+        if image_div:
+            image_url = image_div['src']
+            print("URL", image_url)
+        else:
+            image_div = one_or_default(top_card, '.pv-top-card-section__photo')
+            style_string = image_div['style']
+            pattern = re.compile('background-image: url\("(.*?)"')
+            matches = pattern.match(style_string).groups()
+            if matches:
+                image_url = matches[0]
+
+        personal_info['image'] = image_url
+
         followers_text = text_or_default(self.soup,
                                          '.pv-recent-activity-section__follower-count', '')
         personal_info['followers'] = followers_text.replace(
