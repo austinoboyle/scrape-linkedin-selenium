@@ -29,7 +29,6 @@ class Profile(ResultsObject):
         # print(image_div)
         if image_div:
             image_url = image_div['src']
-            print("URL", image_url)
         else:
             image_div = one_or_default(top_card, '.pv-top-card-section__photo')
             style_string = image_div['style']

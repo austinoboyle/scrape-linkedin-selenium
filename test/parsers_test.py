@@ -29,5 +29,18 @@ def test_handles_full_html_page():
     with open(path.join(DIR, 'html_files/profile.html'), 'r') as f:
         profile_html = f.read()
     profile = Profile(profile_html)
-    print(profile.to_dict().keys())
     assert profile.personal_info['name'] == "Austin O'Boyle"
+
+
+def test_image_url():
+    """
+    Ensure imageURL parsing works on both YOUR profile, and the profiles of
+    others. (They have different styling)
+    """
+    with open(path.join(DIR, 'html_files/profile.html'), 'r') as f:
+        my_profile_html = f.read()
+    with open(path.join(DIR, 'html_files/otherProfile.html'), 'r') as f:
+        other_profile_html = f.read()
+    my_info = Profile(my_profile_html).personal_info
+    other_info = Profile(other_profile_html).personal_info
+    assert my_info['image'] and other_info['image']
