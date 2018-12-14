@@ -23,7 +23,7 @@ def test_profile_scraper():
     assert personal_info['name'] == "Austin O'Boyle"
     assert len(personal_info['websites']) > 0
     non_nulls = ['headline', 'company', 'school',
-                 'summary', 'location', 'followers', 'email']
+                 'summary', 'location', 'followers', 'email', 'image']
     for a in non_nulls:
         assert personal_info[a]
 
