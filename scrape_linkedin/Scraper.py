@@ -49,7 +49,8 @@ class Scraper(object):
             if not cookie and 'LI_AT' not in environ:
                 raise ValueError(
                     'Must either define LI_AT environment variable, or pass a cookie string to the Scraper')
-            cookie = environ['LI_AT']
+            elif not cookie:
+                cookie = environ['LI_AT']
             self.driver.add_cookie({
                 'name': 'li_at',
                 'value': cookie,
