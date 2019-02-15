@@ -24,7 +24,7 @@ class Company(ResultsObject):
 
         # Main container with company overview info
         container = one_or_default(
-            self.overview_soup, '.org-grid__core-rail')
+            self.overview_soup, '.org-grid__core-rail--wide')
 
         overview = {}
         overview['description'] = container.select_one(
