@@ -14,6 +14,7 @@ pylinkedin -u https://www.linkedin.com/in/nadia-freitag-81173966 -a skills -o my
 import click
 from click import ClickException
 from .ProfileScraper import ProfileScraper
+from .CompanyScraper import CompanyScraper
 from .Profile import Profile
 from .utils import HEADLESS_OPTIONS
 from pprint import pprint
@@ -26,6 +27,7 @@ from selenium.webdriver import Chrome
 @click.command()
 @click.option('--url', type=str, help='Url of the profile you want to scrape')
 @click.option('--user', type=str, help='Username portion of profile: (www.linkedin.com/in/<username>')
+@click.option('--company', type=str, help='ID of Company you want to scrape. (https://www.linkedin.com/company/id/)')
 @click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 @click.option('--attribute', '-a', type=click.Choice(Profile.attributes))
 @click.option('--input_file', '-i', type=click.Path(exists=True), default=None,
@@ -33,10 +35,12 @@ from selenium.webdriver import Chrome
 @click.option('--headless', is_flag=True)
 @click.option('--output_file', '-o', type=click.Path(), default=None,
               help='Output file you want to write returned content to')
-def scrape(url, user, attribute, input_file, headless, output_file, driver):
+def scrape(url, user, company, attribute, input_file, headless, output_file, driver):
     driver_options = {}
     if headless:
         driver_options = HEADLESS_OPTIONS
+    if company:
+        url = 'http://www.linkedin.com/company/' + company
     if user:
         url = 'http://www.linkedin.com/in/' + user
     if (url and input_file) or (not url and not input_file):
@@ -45,12 +49,14 @@ def scrape(url, user, attribute, input_file, headless, output_file, driver):
     elif url:
         if 'LI_AT' not in os.environ:
             raise ClickException("Must set LI_AT environment variable")
-        if driver == 'Firefox':
-            with ProfileScraper(driver=Firefox, cookie=os.environ['LI_AT'], driver_options=driver_options) as scraper:
-                profile = scraper.scrape(url=url)
+        driver_type = Firefox if driver == 'Firefox' else Chrome
+        if company:
+            with CompanyScraper(driver=driver_type, cookie=os.environ['LI_AT'], driver_options=driver_options) as scraper:
+                profile = scraper.scrape(company=company)
         else:
-            with ProfileScraper(driver=Chrome, cookie=os.environ['LI_AT'], driver_options=driver_options) as scraper:
+            with ProfileScraper(driver=driver_type, cookie=os.environ['LI_AT'], driver_options=driver_options) as scraper:
                 profile = scraper.scrape(url=url)
+
     else:
         with open(input_file, 'r') as html:
             profile = Profile(html)
