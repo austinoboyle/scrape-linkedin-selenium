@@ -28,13 +28,13 @@ from selenium.webdriver import Chrome
 @click.option('--url', type=str, help='Url of the profile you want to scrape')
 @click.option('--user', type=str, help='Username portion of profile: (www.linkedin.com/in/<username>')
 @click.option('--company', type=str, help='ID of Company you want to scrape. (https://www.linkedin.com/company/id/)')
-@click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 @click.option('--attribute', '-a', type=click.Choice(Profile.attributes))
 @click.option('--input_file', '-i', type=click.Path(exists=True), default=None,
               help='Path to html of the profile you wish to load')
-@click.option('--headless', is_flag=True)
+@click.option('--headless', is_flag=True, help="Run in headless mode")
 @click.option('--output_file', '-o', type=click.Path(), default=None,
               help='Output file you want to write returned content to')
+@click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 def scrape(url, user, company, attribute, input_file, headless, output_file, driver):
     driver_options = {}
     if headless:
