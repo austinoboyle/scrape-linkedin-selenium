@@ -33,9 +33,11 @@ class Profile(ResultsObject):
             image_div = one_or_default(top_card, '.pv-top-card-section__photo')
             style_string = image_div['style']
             pattern = re.compile('background-image: url\("(.*?)"')
-            matches = pattern.match(style_string).groups()
-            if matches:
-                image_url = matches[0]
+            matches = pattern.match(style_string)
+            if matches and matches.groups():
+                image_url = matches.groups()[0]
+            else:
+                print("Unable to scrape profile image...continuing")
 
         personal_info['image'] = image_url
 
@@ -145,6 +147,8 @@ class Profile(ResultsObject):
         info = super(Profile, self).to_dict()
         info['personal_info']['current_company_link'] = ''
         jobs = info['experiences']['jobs']
-        if jobs and 'present' in jobs[0]['date_range'].lower():
+        if jobs and jobs[0]['date_range'] and 'present' in jobs[0]['date_range'].lower():
             info['personal_info']['current_company_link'] = jobs[0]['li_company_url']
+        else:
+            print("Unable to determine current company...continuing")
         return info
