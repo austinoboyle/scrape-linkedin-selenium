@@ -24,20 +24,18 @@ class Profile(ResultsObject):
             'summary': 'p.pv-top-card-section__summary-text'
         })
 
-        image_div = one_or_default(top_card, '.profile-photo-edit__preview')
         image_url = ''
-        # print(image_div)
-        if image_div:
-            image_url = image_div['src']
-        else:
-            image_div = one_or_default(top_card, '.pv-top-card-section__photo')
-            style_string = image_div['style']
-            pattern = re.compile('background-image: url\("(.*?)"')
-            matches = pattern.match(style_string)
-            if matches and matches.groups():
-                image_url = matches.groups()[0]
-            else:
-                print("Unable to scrape profile image...continuing")
+        # If this is not None, you were scraping your own profile.
+        image_element = one_or_default(
+            top_card, 'img.profile-photo-edit__preview')
+
+        if not image_element:
+            image_element = one_or_default(
+                top_card, 'img.pv-top-card-section__photo')
+
+        # Set image url to the src of the image html tag, if it exists
+        if image_element and 'src' in image_element:
+            image_url = image_element['src']
 
         personal_info['image'] = image_url
 
@@ -53,9 +51,12 @@ class Profile(ResultsObject):
             'connected': '.ci-connected .pv-contact-info__ci-container'
         }))
 
-        websites = contact_info.select('.ci-websites li a')
-        websites = list(map(lambda x: x['href'], websites))
-        personal_info['websites'] = websites
+        personal_info['websites'] = []
+        if contact_info:
+            websites = contact_info.select('.ci-websites li a')
+            websites = list(map(lambda x: x['href'], websites))
+            personal_info['websites'] = websites
+
         return personal_info
 
     @property
