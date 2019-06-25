@@ -84,7 +84,7 @@ class ProfileScraper(Scraper):
             # Scroll to top to put clickable button in view
             self.driver.execute_script("window.scrollTo(0, 0);")
             button = self.driver.find_element_by_css_selector(
-                '.pv-top-card-v2-section__contact-info')
+                'a[data-control-name="contact_see_more"]')
             button.click()
             contact_info = self.wait_for_el('.pv-contact-info')
             return contact_info.get_attribute('outerHTML')
