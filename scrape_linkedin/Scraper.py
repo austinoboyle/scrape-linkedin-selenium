@@ -85,7 +85,7 @@ class Scraper(object):
             'button[aria-expanded="false"].pv-skills-section__additional-skills',
             'button[aria-expanded="false"].pv-profile-section__see-more-inline',
             'button[aria-expanded="false"].pv-top-card-section__summary-toggle-button',
-            'button[data-control-name="contact_see_more"]'
+            'button[data-control-name="contact_see_more"]',
         ]
 
         current_height = 0
@@ -95,6 +95,10 @@ class Scraper(object):
                     self.driver.find_element_by_css_selector(name).click()
                 except:
                     pass
+
+            # Use JQuery to click on invisible expandable 'see more...' elements
+            self.driver.execute_script('$(".lt-line-clamp__more").click()')
+
             # Scroll down to bottom
             new_height = self.driver.execute_script(
                 "return Math.min({}, document.body.scrollHeight)".format(current_height + self.scroll_increment))

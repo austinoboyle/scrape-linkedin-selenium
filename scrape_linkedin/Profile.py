@@ -12,32 +12,36 @@ class Profile(ResultsObject):
     @property
     def personal_info(self):
         """Return dict of personal info about the user"""
-        top_card = one_or_default(self.soup, 'section.pv-top-card-section')
+        top_card = one_or_default(self.soup, '.pv-top-card-v3')
         contact_info = one_or_default(self.soup, '.pv-contact-info')
 
+        # Note that some of these selectors may have multiple selections, but
+        # get_info takes the first match
         personal_info = get_info(top_card, {
-            'name': '.pv-top-card-section__name',
-            'headline': '.pv-top-card-section__headline',
-            'company': '.pv-top-card-v2-section__company-name',
-            'school': '.pv-top-card-v2-section__school-name',
-            'location': '.pv-top-card-section__location',
-            'summary': 'p.pv-top-card-section__summary-text'
+            'name': '.pv-top-card-v3--list > li',
+            'headline': '.flex-1.mr5 h2',
+            'company': 'li[data-control-name="position_see_more"]',
+            'school': 'li[data-control-name="education_see_more"]',
+            'location': '.pv-top-card-v3--list-bullet > li',
         })
 
-        image_div = one_or_default(top_card, '.profile-photo-edit__preview')
+        personal_info['summary'] = text_or_default(
+            self.soup, '.pv-about-section .pv-about__summary-text', '').replace('... see more', '').strip()
+
         image_url = ''
-        # print(image_div)
-        if image_div:
-            image_url = image_div['src']
-        else:
-            image_div = one_or_default(top_card, '.pv-top-card-section__photo')
-            style_string = image_div['style']
-            pattern = re.compile('background-image: url\("(.*?)"')
-            matches = pattern.match(style_string)
-            if matches and matches.groups():
-                image_url = matches.groups()[0]
-            else:
-                print("Unable to scrape profile image...continuing")
+        # If this is not None, you were scraping your own profile.
+        image_element = one_or_default(
+            top_card, 'img.profile-photo-edit__preview')
+
+        if not image_element:
+            image_element = one_or_default(
+                top_card, 'img.pv-top-card-section__photo')
+
+        # Set image url to the src of the image html tag, if it exists
+        try:
+            image_url = image_element['src']
+        except:
+            pass
 
         personal_info['image'] = image_url
 
@@ -53,9 +57,12 @@ class Profile(ResultsObject):
             'connected': '.ci-connected .pv-contact-info__ci-container'
         }))
 
-        websites = contact_info.select('.ci-websites li a')
-        websites = list(map(lambda x: x['href'], websites))
-        personal_info['websites'] = websites
+        personal_info['websites'] = []
+        if contact_info:
+            websites = contact_info.select('.ci-websites li a')
+            websites = list(map(lambda x: x['href'], websites))
+            personal_info['websites'] = websites
+
         return personal_info
 
     @property

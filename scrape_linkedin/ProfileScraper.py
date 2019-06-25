@@ -16,6 +16,8 @@ class ProfileScraper(Scraper):
     Scraper for Personal LinkedIn Profiles. See inherited Scraper class for
     details about the constructor.
     """
+    MAIN_SELECTOR = '.core-rail'
+    ERROR_SELECTOR = '.profile-unavailable'
 
     def scrape_by_email(self, email):
         self.load_profile_page(
@@ -44,9 +46,9 @@ class ProfileScraper(Scraper):
         try:
             myElem = WebDriverWait(self.driver, self.timeout).until(AnyEC(
                 EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, '.pv-top-card-section')),
+                    (By.CSS_SELECTOR, self.MAIN_SELECTOR)),
                 EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, '.profile-unavailable'))
+                    (By.CSS_SELECTOR, self.ERROR_SELECTOR))
             ))
         except TimeoutException as e:
             raise ValueError(
@@ -60,7 +62,7 @@ class ProfileScraper(Scraper):
 
         # Check if we got the 'profile unavailable' page
         try:
-            self.driver.find_element_by_css_selector('.pv-top-card-section')
+            self.driver.find_element_by_css_selector(self.MAIN_SELECTOR)
         except:
             raise ValueError(
                 'Profile Unavailable: Profile link does not match any current Linkedin Profiles')
@@ -69,8 +71,8 @@ class ProfileScraper(Scraper):
 
     def get_profile(self):
         try:
-            profile = self.driver.find_element_by_id(
-                'profile-wrapper').get_attribute("outerHTML")
+            profile = self.driver.find_element_by_css_selector(
+                self.MAIN_SELECTOR).get_attribute("outerHTML")
         except:
             raise Exception(
                 "Could not find profile wrapper html. This sometimes happens for exceptionally long profiles.  Try decreasing scroll-increment.")
@@ -82,7 +84,7 @@ class ProfileScraper(Scraper):
             # Scroll to top to put clickable button in view
             self.driver.execute_script("window.scrollTo(0, 0);")
             button = self.driver.find_element_by_css_selector(
-                '.pv-top-card-v2-section__contact-info')
+                'a[data-control-name="contact_see_more"]')
             button.click()
             contact_info = self.wait_for_el('.pv-contact-info')
             return contact_info.get_attribute('outerHTML')
