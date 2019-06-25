@@ -85,7 +85,7 @@ class Scraper(object):
             'button[aria-expanded="false"].pv-skills-section__additional-skills',
             'button[aria-expanded="false"].pv-profile-section__see-more-inline',
             'button[aria-expanded="false"].pv-top-card-section__summary-toggle-button',
-            'button[data-control-name="contact_see_more"]',
+            'button[data-control-name="contact_see_more"]'
         ]
 
         current_height = 0
