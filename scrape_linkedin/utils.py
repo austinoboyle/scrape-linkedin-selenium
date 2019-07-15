@@ -138,8 +138,11 @@ def get_job_info(job):
         for pos in positions:
             pos['company'] = company
             pos['li_company_url'] = li_company_url
-            pos['description'] = pos['description'].replace(
-                'See less\n', '').replace('... See more', '').strip()
+            try:
+                pos['description'] = pos['description'].replace(
+                    'See less\n', '').replace('... See more', '').strip()
+            except:
+                pass
 
         return positions
 
