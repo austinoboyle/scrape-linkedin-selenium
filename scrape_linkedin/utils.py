@@ -138,8 +138,9 @@ def get_job_info(job):
         for pos in positions:
             pos['company'] = company
             pos['li_company_url'] = li_company_url
-            pos['description'] = pos['description'].replace(
-                'See less\n', '').replace('... See more', '').strip()
+            if pos['description'] is not None:
+                pos['description'] = pos['description'].replace(
+                    'See less\n', '').replace('... See more', '').strip()
 
         return positions
 
@@ -151,11 +152,10 @@ def get_job_info(job):
             'location': '.pv-entity__location span:nth-of-type(2)',
             'description': '.pv-entity__description',
         })
-        try:
+        if job_info['description'] is not None:
             job_info['description'] = job_info['description'].replace(
                 'See less\n', '').replace('... See more', '').strip()
-        except:
-            pass
+
         company_href = one_or_default(
             job, 'a[data-control-name="background_details_company"]')['href']
         pattern = re.compile('^/company/.*?/$')
