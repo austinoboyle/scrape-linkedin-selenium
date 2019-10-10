@@ -97,7 +97,8 @@ class Scraper(object):
                     pass
 
             # Use JQuery to click on invisible expandable 'see more...' elements
-            self.driver.execute_script('$(".lt-line-clamp__more").click()')
+            self.driver.execute_script(
+                'document.querySelectorAll(".lt-line-clamp__ellipsis:not(.lt-line-clamp__ellipsis--dummy) .lt-line-clamp__more").forEach(el => el.click())')
 
             # Scroll down to bottom
             new_height = self.driver.execute_script(
