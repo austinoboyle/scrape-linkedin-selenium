@@ -23,8 +23,10 @@ class CompanyScraper(Scraper):
             life_html = self.get_life()
         if jobs:
             jobs_html = self.get_jobs()
-        print("JOBS", jobs_html, "\n\n\n\n\nLIFE", life_html)
-        return Company(overview_html, jobs_html, life_html)
+        if insights:
+            insights_html = self.get_insights()
+        #print("JOBS", jobs_html, "\n\n\n\n\nLIFE", life_html)
+        return Company(overview_html, jobs_html, life_html, insights_html)
 
     def load_initial(self, company):
         url = 'https://www.linkedin.com/company/{}'.format(company)
@@ -80,5 +82,16 @@ class CompanyScraper(Scraper):
             self.wait_for_el(
                 'a[data-control-name="page_member_main_nav_jobs_tab"].active')
             return self.driver.find_element_by_css_selector('.org-jobs-container').get_attribute('outerHTML')
+        except:
+            return ''
+
+    def get_insights(self):
+        try:
+            tab_link = self.driver.find_element_by_css_selector(
+                'a[data-control-name="page_member_main_nav_insights_tab"]')
+            tab_link.click()
+            self.wait_for_el(
+                'a[data-control-name="page_member_main_nav_insights_tab"].active')
+            return self.driver.find_element_by_css_selector('.org-premium-insights-module').get_attribute('outerHTML')
         except:
             return ''
