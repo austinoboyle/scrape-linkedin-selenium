@@ -85,6 +85,7 @@ class Scraper(object):
             'button[aria-expanded="false"].pv-skills-section__additional-skills',
             'button[aria-expanded="false"].pv-profile-section__see-more-inline',
             'button[aria-expanded="false"].pv-top-card-section__summary-toggle-button',
+            'button[aria-selected="false"].artdeco-tab',
             'button[data-control-name="contact_see_more"]'
         ]
 
