@@ -1,12 +1,15 @@
+import re
+from datetime import datetime
+
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.expected_conditions import _find_element
-
-import math
-import re
 
 options = Options()
 options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
+
+li_id_expr = re.compile(r'((?<=in\/).+(?=\/)|(?<=in\/).+)')  # re to get li id
+date_expr = re.compile(r'\w+ \d{2}, \d{4}, ')  # re to get date of recommendation
 
 
 def flatten_list(l):
@@ -207,3 +210,50 @@ def get_skill_info(skill):
         'name': '.pv-skill-category-entity__name',
         'endorsements': '.pv-skill-category-entity__endorsement-count'
     }, default=0)
+
+
+def get_recommendation_details(rec):
+    rec_dict = {
+        'text': None,
+        'date': None,
+        'relationship': None,
+        'connection': {
+            'name': None,
+            'li_id': None
+        }
+    }
+
+    # remove See more and See less
+    for text_link in rec.find_all('a', {'role': 'button'}):
+        text_link.decompose()
+
+    text = text_or_default(rec, '.pv-recommendation-entity__highlights')
+    rec_dict['text'] = text.replace('\n', '').replace('  ', '')
+
+    recommender = one_or_default(rec, '.pv-recommendation-entity__member')
+    if recommender:
+        try:
+            rec_dict['connection']['li_id'] = li_id_expr.search(recommender.attrs['href']).group()
+        except AttributeError as e:
+            pass
+
+        recommender_detail = one_or_default(recommender, '.pv-recommendation-entity__detail')
+        if recommender_detail:
+            name = text_or_default(recommender, 'h3')
+            rec_dict['connection']['name'] = name
+
+            recommender_ps = recommender_detail.find_all('p', recursive=False)
+
+            if len(recommender_ps) == 2:
+                try:
+                    recommender_meta = recommender_ps[-1]
+                    recommender_meta = recommender_meta.get_text().strip()
+                    match = date_expr.search(recommender_meta).group()
+                    dt = datetime.strptime(match, '%B %d, %Y, ')
+                    rec_dict['date'] = dt.strftime('%Y-%m-%d')
+                    relationship = recommender_meta.split(match)[-1]
+                    rec_dict['relationship'] = relationship
+                except (ValueError, AttributeError) as e:
+                    pass
+
+    return rec_dict

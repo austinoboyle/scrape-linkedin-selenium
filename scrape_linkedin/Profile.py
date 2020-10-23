@@ -157,86 +157,14 @@ class Profile(ResultsObject):
             'received': [],
             'given': [],
         }
-        rec_block = one_or_default(self.soup, '.recommendations-inlining')
-        if rec_block:
-            div_blocks = rec_block.find_all('div', recursive=False)
-            if div_blocks:
-                rec_tabs = div_blocks[-1]
-                if rec_tabs:
-                    buttons_and_rec_blocks = rec_tabs.find_all('div', recursive=False)
-                    if buttons_and_rec_blocks:
-                        buttons = all_or_default(buttons_and_rec_blocks[0], 'button')
-                        if buttons:
-                            expr = re.compile(r'((?<=in\/).+(?=\/)|(?<=in\/).+)')  # re to get li id
-                            date_expr = re.compile(r'\w+ \d{2}, \d{4}, ')  # re to get date of recommendation
-                            for idx, b in enumerate(buttons):
-                                for rec_type in recs.keys():
-                                    if rec_type in str(b.contents).lower():
-                                        recs_category = buttons_and_rec_blocks[idx + 1]  # +1 --> skip buttons block
-                                        for rec in recs_category.find_all('li', {'class': 'pv-recommendation-entity'}):
-                                            rec_dict = {
-                                                'text': None,
-                                                'date': None,
-                                                'relationship': None,
-                                                'recommender': {
-                                                    'firstName': None,
-                                                    'lastName': None,
-                                                    'occupation': None,
-                                                    'li_id': None
-                                                }
-                                            }
-                                            text_spans = rec.find_all('span',
-                                                                      {
-                                                                          'class': ['lt-line-clamp__line',
-                                                                                    'lt-line-clamp__raw-line']
-                                                                      })
-                                            rec_text_list = [span.text for span in text_spans]
-                                            rec_text_list = [t.replace('\n', '').replace('  ', '').replace('\r', '') for t in rec_text_list]
-                                            rec_dict['text'] = ''.join(rec_text_list)
+        rec_block = one_or_default(self.soup, 'section.pv-recommendations-section')
+        received, given = all_or_default(rec_block, 'div.artdeco-tabpanel')
+        for rec_received in all_or_default(received, "li.pv-recommendation-entity"):
+            recs["received"].append(get_recommendation_details(rec_received))
 
-                                            recommender = one_or_default(rec, '.pv-recommendation-entity__member')
-                                            if recommender:
-                                                try:
-                                                    rec_dict['recommender']['li_id'] = expr.search(
-                                                        recommender.attrs['href']).group()
-                                                except AttributeError as e:
-                                                    pass
+        for rec_given in all_or_default(given, "li.pv-recommendation-entity"):
+            recs["given"].append(get_recommendation_details(rec_given))
 
-                                                recommender_detail = one_or_default(recommender, '.pv-recommendation-entity__detail')
-                                                if recommender_detail:
-                                                    name = text_or_default(recommender, 'h3')
-                                                    name = name.replace('\n', '')
-                                                    name = name.replace('  ', '')
-                                                    name = name.replace('\r', '')
-                                                    name_splitted = name.split(' ', maxsplit=1)
-                                                    rec_dict['recommender']['firstName'] = name_splitted[0]
-                                                    rec_dict['recommender']['lastName'] = name_splitted[1]
-
-                                                    recommender_ps = recommender_detail.find_all('p', recursive=False)
-                                                    if len(recommender_ps) == 2:
-                                                        recommender_headline, recommender_meta = recommender_detail.find_all(
-                                                            'p')
-                                                        if recommender_headline:
-                                                            headline = text_or_default(recommender, 'h3')
-                                                            headline = headline.replace('\n', '')
-                                                            headline = headline.replace('  ', '')
-                                                            headline = headline.replace('\r', '')
-                                                            rec_dict['recommender']['occupation'] = headline
-
-                                                        if recommender_meta:
-                                                            try:
-                                                                match = date_expr.search(recommender_meta.text).group()
-                                                                dt = datetime.strptime(match, '%B %d, %Y, ')
-                                                                rec_dict['date'] = dt.strftime('%Y-%m-%d')
-                                                                relationship = recommender_meta.text.split(match)[-1]
-                                                                relationship = relationship.replace('\n', '')
-                                                                relationship = relationship.replace('  ', '')
-                                                                relationship = relationship.replace('\r', '')
-                                                                rec_dict['relationship'] = relationship
-                                                            except (ValueError, AttributeError) as e:
-                                                                pass
-
-                                            recs[rec_type].append(rec_dict)
         return recs
 
     def to_dict(self):
