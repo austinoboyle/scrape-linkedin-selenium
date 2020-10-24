@@ -68,6 +68,20 @@ class ProfileScraper(Scraper):
                 'Profile Unavailable: Profile link does not match any current Linkedin Profiles')
         # Scroll to the bottom of the page incrementally to load any lazy-loaded content
         self.scroll_to_bottom()
+        self.expand_given_recommendations()
+
+    def expand_given_recommendations(self):
+        try:
+            given_recommendation_tab = self.driver.find_element_by_css_selector(
+                'section.pv-recommendations-section button[aria-selected="false"].artdeco-tab')
+            # Scrolls the desired element into view
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView(false);", given_recommendation_tab)
+            given_recommendation_tab.click()
+            self.click_expandable_buttons()
+            # self.scroll_to_bottom()
+        except:
+            pass
 
     def get_profile(self):
         try:

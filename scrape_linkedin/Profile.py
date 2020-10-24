@@ -8,7 +8,7 @@ class Profile(ResultsObject):
     """Linkedin User Profile Object"""
 
     attributes = ['personal_info', 'experiences',
-                  'skills', 'accomplishments', 'interests']
+                  'skills', 'accomplishments', 'interests', 'recommendations']
 
     @property
     def personal_info(self):
@@ -157,7 +157,8 @@ class Profile(ResultsObject):
             'received': [],
             'given': [],
         }
-        rec_block = one_or_default(self.soup, 'section.pv-recommendations-section')
+        rec_block = one_or_default(
+            self.soup, 'section.pv-recommendations-section')
         received, given = all_or_default(rec_block, 'div.artdeco-tabpanel')
         for rec_received in all_or_default(received, "li.pv-recommendation-entity"):
             recs["received"].append(get_recommendation_details(rec_received))

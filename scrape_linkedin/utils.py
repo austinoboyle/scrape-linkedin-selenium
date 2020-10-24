@@ -8,9 +8,6 @@ options = Options()
 options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
 
-li_id_expr = re.compile(r'((?<=in\/).+(?=\/)|(?<=in\/).+)')  # re to get li id
-date_expr = re.compile(r'\w+ \d{2}, \d{4}, ')  # re to get date of recommendation
-
 
 def flatten_list(l):
     return [item for sublist in l for item in sublist]
@@ -212,12 +209,17 @@ def get_skill_info(skill):
     }, default=0)
 
 
+# Takes a recommendation element and return a dict of relevant information.
 def get_recommendation_details(rec):
+    li_id_expr = re.compile(
+        r'((?<=in\/).+(?=\/)|(?<=in\/).+)')  # re to get li id
+    # re to get date of recommendation
+    date_expr = re.compile(r'\w+ \d{2}, \d{4}, ')
     rec_dict = {
         'text': None,
         'date': None,
-        'relationship': None,
         'connection': {
+            'relationship': None,
             'name': None,
             'li_id': None
         }
@@ -233,11 +235,13 @@ def get_recommendation_details(rec):
     recommender = one_or_default(rec, '.pv-recommendation-entity__member')
     if recommender:
         try:
-            rec_dict['connection']['li_id'] = li_id_expr.search(recommender.attrs['href']).group()
+            rec_dict['connection']['li_id'] = li_id_expr.search(
+                recommender.attrs['href']).group()
         except AttributeError as e:
             pass
 
-        recommender_detail = one_or_default(recommender, '.pv-recommendation-entity__detail')
+        recommender_detail = one_or_default(
+            recommender, '.pv-recommendation-entity__detail')
         if recommender_detail:
             name = text_or_default(recommender, 'h3')
             rec_dict['connection']['name'] = name
@@ -252,7 +256,7 @@ def get_recommendation_details(rec):
                     dt = datetime.strptime(match, '%B %d, %Y, ')
                     rec_dict['date'] = dt.strftime('%Y-%m-%d')
                     relationship = recommender_meta.split(match)[-1]
-                    rec_dict['relationship'] = relationship
+                    rec_dict['connection']['relationship'] = relationship
                 except (ValueError, AttributeError) as e:
                     pass
 
