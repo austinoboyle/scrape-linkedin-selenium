@@ -1,13 +1,14 @@
 from .utils import *
 from .ResultsObject import ResultsObject
 import re
+from datetime import datetime
 
 
 class Profile(ResultsObject):
     """Linkedin User Profile Object"""
 
     attributes = ['personal_info', 'experiences',
-                  'skills', 'accomplishments', 'interests']
+                  'skills', 'accomplishments', 'interests', 'recommendations']
 
     @property
     def personal_info(self):
@@ -149,6 +150,23 @@ class Profile(ResultsObject):
         interests = map(lambda i: text_or_default(
             i, '.pv-entity__summary-title'), interests)
         return list(interests)
+
+    @property
+    def recommendations(self):
+        recs = {
+            'received': [],
+            'given': [],
+        }
+        rec_block = one_or_default(
+            self.soup, 'section.pv-recommendations-section')
+        received, given = all_or_default(rec_block, 'div.artdeco-tabpanel')
+        for rec_received in all_or_default(received, "li.pv-recommendation-entity"):
+            recs["received"].append(get_recommendation_details(rec_received))
+
+        for rec_given in all_or_default(given, "li.pv-recommendation-entity"):
+            recs["given"].append(get_recommendation_details(rec_given))
+
+        return recs
 
     def to_dict(self):
         info = super(Profile, self).to_dict()
