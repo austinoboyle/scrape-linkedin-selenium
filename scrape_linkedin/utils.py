@@ -214,7 +214,7 @@ def get_recommendation_details(rec):
     li_id_expr = re.compile(
         r'((?<=in\/).+(?=\/)|(?<=in\/).+)')  # re to get li id
     # re to get date of recommendation
-    date_expr = re.compile(r'\w+ \d{2}, \d{4}, ')
+    date_expr = re.compile(r'\w+ \d{1,2}, \d{4}, ')
     rec_dict = {
         'text': None,
         'date': None,
@@ -226,8 +226,10 @@ def get_recommendation_details(rec):
     }
 
     # remove See more and See less
-    for text_link in rec.find_all('a', {'role': 'button'}):
+    for text_link in all_or_default(rec, 'a[role="button"]'):
         text_link.decompose()
+    for ellipsis in all_or_default(rec, '.lt-line-clamp__ellipsis'):
+        ellipsis.decompose()
 
     text = text_or_default(rec, '.pv-recommendation-entity__highlights')
     rec_dict['text'] = text.replace('\n', '').replace('  ', '')
