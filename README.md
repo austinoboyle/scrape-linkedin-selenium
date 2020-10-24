@@ -79,7 +79,7 @@ There are two ways to set your li_at cookie:
 
 1.  Set the LI_AT environment variable
     -   `$ export LI_AT=YOUR_LI_AT_VALUE`
-    -   **On Windows**: `\$ set LI_AT=YOUR_LI_AT_VALUE
+    -   **On Windows**: `C:/foo/bar> set LI_AT=YOUR_LI_AT_VALUE`
 2.  Pass the cookie as a parameter to the Scraper object.
     > `>>> with ProfileScraper(cookie='YOUR_LI_AT_VALUE') as scraper:`
 
