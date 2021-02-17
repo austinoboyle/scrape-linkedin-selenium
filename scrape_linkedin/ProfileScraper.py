@@ -16,7 +16,7 @@ class ProfileScraper(Scraper):
     Scraper for Personal LinkedIn Profiles. See inherited Scraper class for
     details about the constructor.
     """
-    MAIN_SELECTOR = '.core-rail'
+    MAIN_SELECTOR = '.scaffold-layout__main'
     ERROR_SELECTOR = '.profile-unavailable'
 
     def scrape_by_email(self, email):
