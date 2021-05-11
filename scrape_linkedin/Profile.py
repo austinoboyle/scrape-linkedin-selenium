@@ -36,7 +36,7 @@ class Profile(ResultsObject):
 
         if not image_element:
             image_element = one_or_default(
-                top_card, 'img.pv-top-card-section__photo')
+                top_card, 'img.pv-top-card__photo')
 
         # Set image url to the src of the image html tag, if it exists
         try:
