@@ -25,10 +25,8 @@ class Profile(ResultsObject):
             'school': 'li[data-control-name="education_see_more"]',
             'location': '.pv-top-card--list-bullet > li',
         })
-        print(top_card)
-        print(personal_info.get('name'))
 
-        if personal_info.get('name', None) is None:
+        if "connections" in personal_info.get('name'):
             personal_info = get_info(top_card, {
                 'name': '.pv-text-details__left-panel > h1',
                 'headline': 'text-body-medium',
