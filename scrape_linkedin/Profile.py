@@ -25,10 +25,8 @@ class Profile(ResultsObject):
             'school': 'li[data-control-name="education_see_more"]',
             'location': '.pv-top-card--list-bullet > li',
         })
-        print(personal_info)
         
-
-        if "connections" in personal_info.get('name'):
+        if "connections" in personal_info.get('name') or personal_info.get('name') == None:
             personal_info = get_info(top_card, {
                 'name': '.text-heading-xlarge',
                 'headline': '.text-body-medium',
@@ -36,7 +34,6 @@ class Profile(ResultsObject):
                 'school': 'li[data-control-name="education_see_more"]',
                 'location': '.text-body-small',
             })
-        print(personal_info)
 
         personal_info['summary'] = text_or_default(
             self.soup, '.pv-about-section .pv-about__summary-text', '').replace('... see more', '').strip()
