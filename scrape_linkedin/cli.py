@@ -40,9 +40,9 @@ def scrape(url, user, company, attribute, input_file, headless, output_file, dri
     if headless:
         driver_options = HEADLESS_OPTIONS
     if company:
-        url = 'http://www.linkedin.com/company/' + company
+        url = 'https://www.linkedin.com/company/' + company
     if user:
-        url = 'http://www.linkedin.com/in/' + user
+        url = 'https://www.linkedin.com/in/' + user
     if (url and input_file) or (not url and not input_file):
         raise ClickException(
             'Must pass either a url or file path, but not both.')
