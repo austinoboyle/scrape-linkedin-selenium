@@ -37,7 +37,7 @@ class ProfileScraper(Scraper):
             ValueError: If link doesn't match a typical profile url
         """
         if user:
-            url = 'http://www.linkedin.com/in/' + user
+            url = 'https://www.linkedin.com/in/' + user
         if 'com/in/' not in url and 'sales/gmail/profile/proxy/' not in url:
             raise ValueError(
                 "Url must look like... .com/in/NAME or... '.com/sales/gmail/profile/proxy/EMAIL")

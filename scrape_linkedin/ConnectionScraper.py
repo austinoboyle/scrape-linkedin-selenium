@@ -33,7 +33,7 @@ class ConnectionScraper(Scraper):
             ValueError: If link doesn't match a typical profile url
         """
         if user:
-            url = 'http://www.linkedin.com/in/' + user
+            url = 'https://www.linkedin.com/in/' + user
         if 'com/in/' not in url:
             raise ValueError("Url must look like ...linkedin.com/in/NAME")
         self.current_profile = url.split(r'com/in/')[1]
