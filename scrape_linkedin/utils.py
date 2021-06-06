@@ -1,12 +1,17 @@
 import re
 from datetime import datetime
 
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.expected_conditions import _find_element
 
 options = Options()
 options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
+
+
+def _find_element(driver, by):
+    """Looks up an element using a Locator"""
+    return driver.find_element(*by)
 
 
 def flatten_list(l):
