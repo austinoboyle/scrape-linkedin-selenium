@@ -1,7 +1,9 @@
 import logging
 import re
 from datetime import datetime
+from typing import List, Optional
 
+import bs4
 from selenium.webdriver.chrome.options import Options
 
 options = Options()
@@ -49,7 +51,7 @@ class AnyEC(object):
         return False
 
 
-def one_or_default(element, selector, default=None):
+def one_or_default(element: Optional[bs4.Tag], selector: str, default=None) -> Optional[bs4.Tag]:
     """Return the first found element with a given css selector
 
     Params:
@@ -75,7 +77,6 @@ def text_or_default(element, selector, default=None):
     try:
         return element.select_one(selector).get_text().strip()
     except Exception as e:
-        logger.debug
         return default
 
 
@@ -117,24 +118,29 @@ def get_info(element, mapping, default=None):
     return {key: text_or_default(element, mapping[key], default=default) for key in mapping}
 
 
-def get_job_info(job):
+def get_job_info(job: Optional[bs4.Tag]) -> List[dict]:
     """
     Returns:
-        dict of job's title, company, date_range, location, description
+        list of dicts, each element containing the details of a job for some company:
+           - job title
+           - company
+           - date_range
+           - location
+           - description
+           - company link
     """
-
     def _get_company_url(job_element):
         company_link = one_or_default(
             job_element, 'a[data-control-name="background_details_company"]')
 
         if not company_link:
-            logger.warning("Could not determine company href.")
+            logger.info("Could not find link to company.")
             return ''
 
         pattern = re.compile('^/company/.*?/$')
         if not hasattr(company_link, 'href') or not pattern.match(company_link['href']):
             logger.warning(
-                "Found company link el: %s, but could not determine href.", company_link)
+                "Found company link el: %s, but either the href format was unexpected, or the href didn't exist.", company_link)
             return ''
         else:
             return 'https://www.linkedin.com' + company_link['href']
@@ -143,6 +149,8 @@ def get_job_info(job):
         job, '.pv-entity__role-details-container')
 
     company_url = _get_company_url(job)
+
+    all_positions = []
 
     # Handle UI case where user has muttiple consec roles at same company
     if (position_elements):
@@ -161,7 +169,7 @@ def get_job_info(job):
                 pos['description'] = pos['description'].replace(
                     'See less\n', '').replace('... See more', '').strip()
 
-        return positions
+            all_positions.append(pos)
 
     else:
         job_info = get_info(job, {
@@ -176,8 +184,18 @@ def get_job_info(job):
                 'See less\n', '').replace('... See more', '').strip()
 
         job_info['li_company_url'] = company_url
+        all_positions.append(job_info)
 
-        return [job_info]
+    if all_positions:
+        company = all_positions[0].get('company', "Unknown")
+        job_title = all_positions[0].get('title', "Unknown")
+        logger.debug(
+            "Attempting to determine company URL from position: {company: %s, job_title: %s}", company, job_title)
+        url = _get_company_url(job)
+        for pos in all_positions:
+            pos['li_company_url'] = url
+
+    return all_positions
 
 
 def get_school_info(school):

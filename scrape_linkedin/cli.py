@@ -56,8 +56,8 @@ def _init_logging():
 @click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 def scrape(url, user, company, attribute, input_file, headless, output_file, driver):
     _init_logging()
+    logger.info("Starting scrapeli with: %s", locals())
     driver_options = {}
-    logger.debug("CLI Initialized")
     if headless:
         logger.debug("HEADLESS")
         driver_options = HEADLESS_OPTIONS

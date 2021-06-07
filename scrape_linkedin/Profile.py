@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from .ResultsObject import ResultsObject
 from .utils import *
@@ -14,6 +15,7 @@ class Profile(ResultsObject):
 
     @property
     def personal_info(self):
+        logger.info("Trying to determine the 'personal_info' property")
         """Return dict of personal info about the user"""
         personal_info = dict.fromkeys(['name', 'headline', 'company', 'school', 'location',
                                       'summary', 'image', 'followers', 'email', 'phone', 'connected', 'websites'])
@@ -24,15 +26,18 @@ class Profile(ResultsObject):
             # Note that some of these selectors may have multiple selections, but
             # get_info takes the first match
             personal_info = {**personal_info, **get_info(top_card, {
-                'name': '.pv-top-card--list > li',
-                'headline': '.flex-1.mr5 h2',
-                'company': 'li[data-control-name="position_see_more"]',
-                'school': 'li[data-control-name="education_see_more"]',
-                'location': '.pv-top-card--list-bullet > li',
+                'name': 'h1',
+                'headline': '.text-body-medium.break-words',
+                'company': 'div[aria-label="Current company"]',
+                'school': 'div[aria-label="Education"]',
+                'location': '.text-body-small.inline.break-words',
             })}
 
-            personal_info['summary'] = text_or_default(
-                self.soup, '.pv-about-section .pv-about__summary-text', '').replace('... see more', '').strip()
+            summary = text_or_default(
+                self.soup, '.pv-about-section', '').replace('... see more', '')
+
+            personal_info['summary'] = re.sub(
+                r"^About", "", summary, flags=re.IGNORECASE).strip()
 
             image_url = ''
             # If this is not None, you were scraping your own profile.
@@ -51,12 +56,28 @@ class Profile(ResultsObject):
 
             personal_info['image'] = image_url
 
-            followers_text = text_or_default(self.soup,
-                                             '.pv-recent-activity-section__follower-count', '')
-            personal_info['followers'] = followers_text.replace(
-                'followers', '').strip()
+            activity_section = one_or_default(self.soup,
+                                              '.pv-recent-activity-section-v2')
 
-            # print(contact_info)
+            followers_text = ''
+            if activity_section:
+                logger.info(
+                    "Found the Activity section, trying to determine follower count.")
+
+                # Search for numbers of the form xx(,xxx,xxx...)
+                follower_count_search = re.search(
+                    r"[^,\d](\d+(?:,\d{3})*) followers", activity_section.text, re.IGNORECASE)
+
+                if follower_count_search:
+                    followers_text = follower_count_search.group(1)
+
+                else:
+                    logger.debug("Did not find follower count")
+            else:
+                logger.info(
+                    "Could not find the Activity section. Continuing anyways.")
+
+            personal_info['followers'] = followers_text
             personal_info.update(get_info(contact_info, {
                 'email': '.ci-email .pv-contact-info__ci-container',
                 'phone': '.ci-phone .pv-contact-info__ci-container',
@@ -83,6 +104,7 @@ class Profile(ResultsObject):
                 - Education
                 - Volunteer Experiences
         """
+        logger.info("Trying to determine the 'experiences' property")
         experiences = dict.fromkeys(
             ['jobs', 'education', 'volunteering'], [])
         try:
@@ -117,6 +139,7 @@ class Profile(ResultsObject):
             list of skills {name: str, endorsements: int} in decreasing order of
             endorsement quantity.
         """
+        logger.info("Trying to determine the 'skills' property")
         skills = self.soup.select('.pv-skill-category-entity__skill-wrapper')
         skills = list(map(get_skill_info, skills))
 
@@ -140,6 +163,7 @@ class Profile(ResultsObject):
                 - languages
                 - organizations
         """
+        logger.info("Trying to determine the 'accomplishments' property")
         accomplishments = dict.fromkeys([
             'publications', 'certifications', 'patents',
             'courses', 'projects', 'honors',
@@ -165,6 +189,7 @@ class Profile(ResultsObject):
         Returns:
             list of person's interests
         """
+        logger.info("Trying to determine the 'interests' property")
         interests = []
         try:
             container = one_or_default(self.soup, '.pv-interests-section')
@@ -178,6 +203,7 @@ class Profile(ResultsObject):
 
     @property
     def recommendations(self):
+        logger.info("Trying to determine the 'recommendations' property")
         recs = dict.fromkeys(['received', 'given'], [])
         try:
             rec_block = one_or_default(
@@ -196,16 +222,6 @@ class Profile(ResultsObject):
             return recs
 
     def to_dict(self):
-        info = super(Profile, self).to_dict()
-        try:
-            info['personal_info']['current_company_link'] = ''
-            jobs = info['experiences']['jobs']
-            if jobs and jobs[0]['date_range'] and 'present' in jobs[0]['date_range'].lower():
-                info['personal_info']['current_company_link'] = jobs[0]['li_company_url']
-            else:
-                raise Exception("Could not determine current company.")
-        except Exception as e:
-            logger.exception(
-                "Could not determine current company's link: %s", e)
-        finally:
-            return info
+        logger.info(
+            "Attempting to turn return a dictionary for the Profile object.")
+        return super(Profile, self).to_dict()
