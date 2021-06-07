@@ -1,7 +1,8 @@
-from .Scraper import Scraper
+import logging
 import re
 import time
-import logging
+
+from .Scraper import Scraper
 
 MY_CONNECTIONS_LINK = 'https://www.linkedin.com/mynetwork/invite-connect/connections/'
 

@@ -1,9 +1,7 @@
-from .utils import *
-from .ResultsObject import ResultsObject
-import re
 import logging
-from datetime import datetime
 
+from .ResultsObject import ResultsObject
+from .utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +149,8 @@ class Profile(ResultsObject):
             container = one_or_default(
                 self.soup, '.pv-accomplishments-section')
             for key in accomplishments:
-                accs = all_or_default(container, 'section.' + key + ' ul > li')
+                accs = all_or_default(
+                    container, 'section.' + key + ' ul > li')
                 accs = map(lambda acc: acc.get_text() if acc else None, accs)
                 accomplishments[key] = list(accs)
         except Exception as e:
@@ -183,7 +182,8 @@ class Profile(ResultsObject):
         try:
             rec_block = one_or_default(
                 self.soup, 'section.pv-recommendations-section')
-            received, given = all_or_default(rec_block, 'div.artdeco-tabpanel')
+            received, given = all_or_default(
+                rec_block, 'div.artdeco-tabpanel')
             for rec_received in all_or_default(received, "li.pv-recommendation-entity"):
                 recs["received"].append(
                     get_recommendation_details(rec_received))

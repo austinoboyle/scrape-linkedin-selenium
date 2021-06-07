@@ -1,15 +1,15 @@
-from .CompanyScraper import CompanyScraper
-from .ProfileScraper import ProfileScraper
-from .ConnectionScraper import ConnectionScraper
-from .utils import HEADLESS_OPTIONS, split_lists
+import json
+import logging
+import os
+import shutil
+
 from joblib import Parallel, delayed
 from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.options import Options
-import math
-import json
-import shutil
-import os
-import logging
+
+from .CompanyScraper import CompanyScraper
+from .ConnectionScraper import ConnectionScraper
+from .ProfileScraper import ProfileScraper
+from .utils import HEADLESS_OPTIONS, split_lists
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +55,9 @@ def scrape_job(scraper_type, items, output_file, **scraper_kwargs):
                 data[item] = scraper.scrape(company=item).to_dict()
             elif scraper_type == ConnectionScraper:
                 data[item] = scraper.scrape(user=item)
-            else:
+            elif scraper_type == ProfileScraper:
                 data[item] = scraper.scrape(user=item).to_dict()
         except Exception as e:
-            print("{} could not be scraped".format(item))
-            print(e)
+            logger.exception("%s could not be scraped: %s", item, e)
         with open(output_file, 'w') as out:
             json.dump(data, out)

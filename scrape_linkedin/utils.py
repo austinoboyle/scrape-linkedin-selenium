@@ -1,15 +1,14 @@
+import logging
 import re
 from datetime import datetime
-import logging
 
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 
 options = Options()
 options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
 
-logger = logging.getLogger('scrape_linkedin.utils')
+logger = logging.getLogger(__name__)
 
 
 def _find_element(driver, by):
@@ -76,6 +75,7 @@ def text_or_default(element, selector, default=None):
     try:
         return element.select_one(selector).get_text().strip()
     except Exception as e:
+        logger.debug
         return default
 
 

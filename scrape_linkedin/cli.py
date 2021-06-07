@@ -11,28 +11,36 @@ Examples:
 scrapeli -u https://www.linkedin.com/in/austinoboyle -a skills -o my_skills.json
 """
 
-import click
-import logging
 import datetime
+import json
+import logging
+import os
+from pprint import pprint
+
+import click
 from click import ClickException
-from .ProfileScraper import ProfileScraper
+from selenium.webdriver import Chrome, Firefox
+
 from .CompanyScraper import CompanyScraper
 from .Profile import Profile
+from .ProfileScraper import ProfileScraper
 from .utils import HEADLESS_OPTIONS
-from pprint import pprint
-import json
-import os
-from selenium.webdriver import Firefox
-from selenium.webdriver import Chrome
+
+logger = logging.getLogger(__name__)
 
 
 def _init_logging():
     now_time_str = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M',
-                        filename='scrapeli_{}.log'.format(now_time_str),
+    # Set the default logging level for all other modules to WARNING
+    log_fname = 'scrapeli_{}.log'.format(now_time_str)
+    print("Logging debug information to", log_fname)
+    logging.basicConfig(level=logging.WARNING,
+                        format='%(asctime)s %(levelname)-8s %(name)s [%(filename)s:%(lineno)d] %(message)s',
+                        datefmt='%Y-%m-%d:%H:%M:%S',
+                        filename=log_fname,
                         filemode='w')
+    # Set our internal log level to DEBUG
+    logging.getLogger('scrape_linkedin').setLevel(logging.DEBUG)
 
 
 @click.command()
@@ -49,7 +57,9 @@ def _init_logging():
 def scrape(url, user, company, attribute, input_file, headless, output_file, driver):
     _init_logging()
     driver_options = {}
+    logger.debug("CLI Initialized")
     if headless:
+        logger.debug("HEADLESS")
         driver_options = HEADLESS_OPTIONS
     if company:
         url = 'https://www.linkedin.com/company/' + company

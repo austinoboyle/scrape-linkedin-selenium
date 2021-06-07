@@ -1,14 +1,13 @@
-from .Scraper import Scraper
-from .ConnectionScraper import ConnectionScraper
-import json
 import logging
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-import time
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from .ConnectionScraper import ConnectionScraper
 from .Profile import Profile
+from .Scraper import Scraper
 from .utils import AnyEC
 
 logger = logging.getLogger(__name__)
@@ -45,7 +44,7 @@ class ProfileScraper(Scraper):
             raise ValueError(
                 "Url must look like... .com/in/NAME or... '.com/sales/gmail/profile/proxy/EMAIL")
 
-        logger.info("Scraping profile for URL %s", url)
+        logger.debug("Scraping profile for URL %s", url)
 
         self.driver.get(url)
         # Wait for page to load dynamically via javascript
