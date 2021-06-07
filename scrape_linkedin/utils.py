@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+import logging
 
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.chrome.options import Options
@@ -7,6 +8,8 @@ from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
+
+logger = logging.getLogger('scrape_linkedin.utils')
 
 
 def _find_element(driver, by):
@@ -119,21 +122,32 @@ def get_job_info(job):
     Returns:
         dict of job's title, company, date_range, location, description
     """
+
+    def _get_company_url(job_element):
+        company_link = one_or_default(
+            job_element, 'a[data-control-name="background_details_company"]')
+
+        if not company_link:
+            logger.warning("Could not determine company href.")
+            return ''
+
+        pattern = re.compile('^/company/.*?/$')
+        if not hasattr(company_link, 'href') or not pattern.match(company_link['href']):
+            logger.warning(
+                "Found company link el: %s, but could not determine href.", company_link)
+            return ''
+        else:
+            return 'https://www.linkedin.com' + company_link['href']
+
     position_elements = all_or_default(
         job, '.pv-entity__role-details-container')
+
+    company_url = _get_company_url(job)
 
     # Handle UI case where user has muttiple consec roles at same company
     if (position_elements):
         company = text_or_default(job,
                                   '.pv-entity__company-summary-info > h3 > span:nth-of-type(2)')
-
-        company_href = one_or_default(
-            job, 'a[data-control-name="background_details_company"]')['href']
-        pattern = re.compile('^/company/.*?/$')
-        if pattern.match(company_href):
-            li_company_url = 'https://www.linkedin.com/' + company_href
-        else:
-            li_company_url = ''
         positions = list(map(lambda pos: get_info(pos, {
             'title': '.pv-entity__summary-info-v2 > h3 > span:nth-of-type(2)',
             'date_range': '.pv-entity__date-range span:nth-of-type(2)',
@@ -142,7 +156,7 @@ def get_job_info(job):
         }), position_elements))
         for pos in positions:
             pos['company'] = company
-            pos['li_company_url'] = li_company_url
+            pos['li_company_url'] = company_url
             if pos['description'] is not None:
                 pos['description'] = pos['description'].replace(
                     'See less\n', '').replace('... See more', '').strip()
@@ -161,13 +175,7 @@ def get_job_info(job):
             job_info['description'] = job_info['description'].replace(
                 'See less\n', '').replace('... See more', '').strip()
 
-        company_href = one_or_default(
-            job, 'a[data-control-name="background_details_company"]')['href']
-        pattern = re.compile('^/company/.*?/$')
-        if pattern.match(company_href):
-            job_info['li_company_url'] = 'https://www.linkedin.com' + company_href
-        else:
-            job_info['li_company_url'] = ''
+        job_info['li_company_url'] = company_url
 
         return [job_info]
 

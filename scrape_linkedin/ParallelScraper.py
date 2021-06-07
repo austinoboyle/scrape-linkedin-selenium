@@ -9,6 +9,9 @@ import math
 import json
 import shutil
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def scrape_in_parallel(

@@ -8,6 +8,9 @@ import re
 
 import time
 from .utils import *
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ConnectionScraper(Scraper):

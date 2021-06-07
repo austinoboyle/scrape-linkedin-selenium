@@ -2,6 +2,9 @@ from .utils import *
 from .ResultsObject import ResultsObject
 from bs4 import BeautifulSoup
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Company(ResultsObject):
@@ -36,14 +39,15 @@ class Company(ResultsObject):
 
         metadata_keys = container.select('.org-page-details__definition-term')
         print(metadata_keys)
-        metadata_keys = [x for x in metadata_keys if "Company size" not in x.get_text()]
+        metadata_keys = [
+            x for x in metadata_keys if "Company size" not in x.get_text()]
         print(metadata_keys)
         metadata_values = container.select(
             '.org-page-details__definition-text')
         overview.update(
-            get_info(banner, {'name': '.org-top-card-summary__title'})) # A fix to the name selector
+            get_info(banner, {'name': '.org-top-card-summary__title'}))  # A fix to the name selector
         overview.update(
-            get_info(container, {'company_size': '.org-about-company-module__company-size-definition-text'})) # Manually added Company size
+            get_info(container, {'company_size': '.org-about-company-module__company-size-definition-text'}))  # Manually added Company size
 
         for key, val in zip(metadata_keys, metadata_values):
             dict_key = key.get_text().strip().lower().replace(" ", "_")
@@ -53,7 +57,7 @@ class Company(ResultsObject):
         print(overview)
 
         all_employees_links = all_or_default(
-            banner, '.mt2 > a > span') # A fix to locate "See all ### employees on LinkedIn"
+            banner, '.mt2 > a > span')  # A fix to locate "See all ### employees on LinkedIn"
 
         if all_employees_links:
             all_employees_text = all_employees_links[-1].text

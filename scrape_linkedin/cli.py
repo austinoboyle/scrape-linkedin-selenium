@@ -1,5 +1,5 @@
 """
-Usage: pylinkedin -u url
+Usage: scrapeli -u url
 Options:
   --url : Url of the profile you want to scrape
   --user : username portion of the url (linkedin.com/in/USER)
@@ -8,10 +8,12 @@ Options:
   -o --output_file : path of output file you want to write returned content to
   -h --help : Show this screen.
 Examples:
-pylinkedin -u https://www.linkedin.com/in/nadia-freitag-81173966 -a skills -o my_skills.json
+scrapeli -u https://www.linkedin.com/in/austinoboyle -a skills -o my_skills.json
 """
 
 import click
+import logging
+import datetime
 from click import ClickException
 from .ProfileScraper import ProfileScraper
 from .CompanyScraper import CompanyScraper
@@ -22,6 +24,15 @@ import json
 import os
 from selenium.webdriver import Firefox
 from selenium.webdriver import Chrome
+
+
+def _init_logging():
+    now_time_str = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M',
+                        filename='scrapeli_{}.log'.format(now_time_str),
+                        filemode='w')
 
 
 @click.command()
@@ -36,6 +47,7 @@ from selenium.webdriver import Chrome
               help='Output file you want to write returned content to')
 @click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 def scrape(url, user, company, attribute, input_file, headless, output_file, driver):
+    _init_logging()
     driver_options = {}
     if headless:
         driver_options = HEADLESS_OPTIONS

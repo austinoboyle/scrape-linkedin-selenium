@@ -8,6 +8,9 @@ from selenium.common.exceptions import TimeoutException
 import time
 from .Company import Company
 from .utils import AnyEC
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CompanyScraper(Scraper):
