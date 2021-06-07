@@ -1,12 +1,21 @@
+import logging
 import re
 from datetime import datetime
+from typing import List, Optional
 
+import bs4
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.expected_conditions import _find_element
 
 options = Options()
 options.add_argument('--headless')
 HEADLESS_OPTIONS = {'chrome_options': options}
+
+logger = logging.getLogger(__name__)
+
+
+def _find_element(driver, by):
+    """Looks up an element using a Locator"""
+    return driver.find_element(*by)
 
 
 def flatten_list(l):
@@ -42,7 +51,7 @@ class AnyEC(object):
         return False
 
 
-def one_or_default(element, selector, default=None):
+def one_or_default(element: Optional[bs4.Tag], selector: str, default=None) -> Optional[bs4.Tag]:
     """Return the first found element with a given css selector
 
     Params:
@@ -109,26 +118,44 @@ def get_info(element, mapping, default=None):
     return {key: text_or_default(element, mapping[key], default=default) for key in mapping}
 
 
-def get_job_info(job):
+def get_job_info(job: Optional[bs4.Tag]) -> List[dict]:
     """
     Returns:
-        dict of job's title, company, date_range, location, description
+        list of dicts, each element containing the details of a job for some company:
+           - job title
+           - company
+           - date_range
+           - location
+           - description
+           - company link
     """
+    def _get_company_url(job_element):
+        company_link = one_or_default(
+            job_element, 'a[data-control-name="background_details_company"]')
+
+        if not company_link:
+            logger.info("Could not find link to company.")
+            return ''
+
+        pattern = re.compile('^/company/.*?/$')
+        if not hasattr(company_link, 'href') or not pattern.match(company_link['href']):
+            logger.warning(
+                "Found company link el: %s, but either the href format was unexpected, or the href didn't exist.", company_link)
+            return ''
+        else:
+            return 'https://www.linkedin.com' + company_link['href']
+
     position_elements = all_or_default(
         job, '.pv-entity__role-details-container')
+
+    company_url = _get_company_url(job)
+
+    all_positions = []
 
     # Handle UI case where user has muttiple consec roles at same company
     if (position_elements):
         company = text_or_default(job,
                                   '.pv-entity__company-summary-info > h3 > span:nth-of-type(2)')
-
-        company_href = one_or_default(
-            job, 'a[data-control-name="background_details_company"]')['href']
-        pattern = re.compile('^/company/.*?/$')
-        if pattern.match(company_href):
-            li_company_url = 'https://www.linkedin.com/' + company_href
-        else:
-            li_company_url = ''
         positions = list(map(lambda pos: get_info(pos, {
             'title': '.pv-entity__summary-info-v2 > h3 > span:nth-of-type(2)',
             'date_range': '.pv-entity__date-range span:nth-of-type(2)',
@@ -137,12 +164,12 @@ def get_job_info(job):
         }), position_elements))
         for pos in positions:
             pos['company'] = company
-            pos['li_company_url'] = li_company_url
+            pos['li_company_url'] = company_url
             if pos['description'] is not None:
                 pos['description'] = pos['description'].replace(
                     'See less\n', '').replace('... See more', '').strip()
 
-        return positions
+            all_positions.append(pos)
 
     else:
         job_info = get_info(job, {
@@ -156,15 +183,19 @@ def get_job_info(job):
             job_info['description'] = job_info['description'].replace(
                 'See less\n', '').replace('... See more', '').strip()
 
-        company_href = one_or_default(
-            job, 'a[data-control-name="background_details_company"]')['href']
-        pattern = re.compile('^/company/.*?/$')
-        if pattern.match(company_href):
-            job_info['li_company_url'] = 'https://www.linkedin.com' + company_href
-        else:
-            job_info['li_company_url'] = ''
+        job_info['li_company_url'] = company_url
+        all_positions.append(job_info)
 
-        return [job_info]
+    if all_positions:
+        company = all_positions[0].get('company', "Unknown")
+        job_title = all_positions[0].get('title', "Unknown")
+        logger.debug(
+            "Attempting to determine company URL from position: {company: %s, job_title: %s}", company, job_title)
+        url = _get_company_url(job)
+        for pos in all_positions:
+            pos['li_company_url'] = url
+
+    return all_positions
 
 
 def get_school_info(school):

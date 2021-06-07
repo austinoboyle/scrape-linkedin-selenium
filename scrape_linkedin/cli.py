@@ -1,5 +1,5 @@
 """
-Usage: pylinkedin -u url
+Usage: scrapeli -u url
 Options:
   --url : Url of the profile you want to scrape
   --user : username portion of the url (linkedin.com/in/USER)
@@ -8,20 +8,39 @@ Options:
   -o --output_file : path of output file you want to write returned content to
   -h --help : Show this screen.
 Examples:
-pylinkedin -u https://www.linkedin.com/in/nadia-freitag-81173966 -a skills -o my_skills.json
+scrapeli -u https://www.linkedin.com/in/austinoboyle -a skills -o my_skills.json
 """
+
+import datetime
+import json
+import logging
+import os
+from pprint import pprint
 
 import click
 from click import ClickException
-from .ProfileScraper import ProfileScraper
+from selenium.webdriver import Chrome, Firefox
+
 from .CompanyScraper import CompanyScraper
 from .Profile import Profile
+from .ProfileScraper import ProfileScraper
 from .utils import HEADLESS_OPTIONS
-from pprint import pprint
-import json
-import os
-from selenium.webdriver import Firefox
-from selenium.webdriver import Chrome
+
+logger = logging.getLogger(__name__)
+
+
+def _init_logging():
+    now_time_str = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    # Set the default logging level for all other modules to WARNING
+    log_fname = 'scrapeli_{}.log'.format(now_time_str)
+    print("Logging debug information to", log_fname)
+    logging.basicConfig(level=logging.WARNING,
+                        format='%(asctime)s %(levelname)-8s %(name)s [%(filename)s:%(lineno)d] %(message)s',
+                        datefmt='%Y-%m-%d:%H:%M:%S',
+                        filename=log_fname,
+                        filemode='w')
+    # Set our internal log level to DEBUG
+    logging.getLogger('scrape_linkedin').setLevel(logging.DEBUG)
 
 
 @click.command()
@@ -36,8 +55,11 @@ from selenium.webdriver import Chrome
               help='Output file you want to write returned content to')
 @click.option('--driver', type=click.Choice(['Chrome', 'Firefox']), help='Webdriver to use: (Firefox/Chrome)', default='Chrome')
 def scrape(url, user, company, attribute, input_file, headless, output_file, driver):
+    _init_logging()
+    logger.info("Starting scrapeli with: %s", locals())
     driver_options = {}
     if headless:
+        logger.debug("HEADLESS")
         driver_options = HEADLESS_OPTIONS
     if company:
         url = 'https://www.linkedin.com/company/' + company

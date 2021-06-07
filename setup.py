@@ -1,5 +1,7 @@
 from setuptools import setup
 
+VERSION = "0.8.0"
+
 
 def readme():
     with open('README.md') as f:
@@ -7,7 +9,7 @@ def readme():
 
 
 setup(name='scrape_linkedin',
-      version="0.7.2",
+      version=VERSION,
       description='Selenium Scraper for Linkedin Profiles',
       long_description=readme(),
       author="Austin O'Boyle",
