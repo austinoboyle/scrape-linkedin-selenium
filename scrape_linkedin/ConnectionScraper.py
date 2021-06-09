@@ -1,13 +1,15 @@
-from .Scraper import Scraper
-import json
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+import logging
 import re
 
-import time
-from .utils import *
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from .Scraper import Scraper
+from .utils import AnyEC
+
+logger = logging.getLogger(__name__)
 
 
 class ConnectionScraper(Scraper):
@@ -33,7 +35,7 @@ class ConnectionScraper(Scraper):
             ValueError: If link doesn't match a typical profile url
         """
         if user:
-            url = 'http://www.linkedin.com/in/' + user
+            url = 'https://www.linkedin.com/in/' + user
         if 'com/in/' not in url:
             raise ValueError("Url must look like ...linkedin.com/in/NAME")
         self.current_profile = url.split(r'com/in/')[1]

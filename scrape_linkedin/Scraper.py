@@ -1,11 +1,15 @@
-import selenium.webdriver
+import logging
 import time
-from os import environ
 from abc import abstractmethod
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from os import environ
+
+import selenium.webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+logger = logging.getLogger(__name__)
 
 
 class Scraper(object):
@@ -40,7 +44,7 @@ class Scraper(object):
         self.scroll_pause = scroll_pause
         self.scroll_increment = scroll_increment
         self.timeout = timeout
-        self.driver.get('http://www.linkedin.com')
+        self.driver.get('https://www.linkedin.com')
         self.driver.set_window_size(1920, 1080)
 
         if 'LI_EMAIL' in environ and 'LI_PASS' in environ:
