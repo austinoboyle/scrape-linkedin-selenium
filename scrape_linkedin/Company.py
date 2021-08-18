@@ -29,25 +29,25 @@ class Company(ResultsObject):
 
         # Banner containing company Name + Location
         banner = one_or_default(
-            self.overview_soup, '.org-top-card')
-
+            self.overview_soup, 'section.org-top-card')
+        
         # Main container with company overview info
         container = one_or_default(
-            self.overview_soup, '.org-grid__core-rail--wide')
-
+            self.overview_soup, 'section.artdeco-card.p4.mb3')
+        
         overview = {}
         overview['description'] = container.select_one(
             'section > p').get_text().strip()
-
+        
         metadata_keys = container.select('.org-page-details__definition-term')
-        print(metadata_keys)
+        # print(metadata_keys)
         metadata_keys = [
             x for x in metadata_keys if "Company size" not in x.get_text()]
-        print(metadata_keys)
+        # print(metadata_keys)
         metadata_values = container.select(
             '.org-page-details__definition-text')
         overview.update(
-            get_info(banner, {'name': '.org-top-card-summary__title'}))  # A fix to the name selector
+            get_info(banner, {'name': '.t-24.t-black.t-bold'}))  # A fix to the name selector
         overview.update(
             get_info(container, {'company_size': '.org-about-company-module__company-size-definition-text'}))  # Manually added Company size
 
@@ -56,10 +56,10 @@ class Company(ResultsObject):
             dict_val = val.get_text().strip()
             if "company_size" not in dict_key:
                 overview[dict_key] = dict_val
-        print(overview)
+        # print(overview)
 
         all_employees_links = all_or_default(
-            banner, '.mt2 > a > span')  # A fix to locate "See all ### employees on LinkedIn"
+            banner, '.mt1 > div > a:nth-of-type(2) > span')  # A fix to locate "See all ### employees on LinkedIn"
 
         if all_employees_links:
             all_employees_text = all_employees_links[-1].text
