@@ -55,13 +55,13 @@ class CompanyScraper(Scraper):
 
     def get_overview(self):
         try:
-            tab_link = self.driver.find_element_by_css_selector(
-                'a[data-control-name="page_member_main_nav_about_tab"]')
+            tab_link = self.driver.find_elements_by_css_selector(
+                'li.org-page-navigation__item.m0')[1]
             tab_link.click()
             self.wait_for_el(
-                'a[data-control-name="page_member_main_nav_about_tab"].active')
+                'section.artdeco-card.p4.mb3')
             return self.driver.find_element_by_css_selector(
-                '.organization-outlet').get_attribute('outerHTML')
+                'div.scaffold-layout__row.scaffold-layout__content').get_attribute('outerHTML')
         except:
             return ''
 
