@@ -89,7 +89,8 @@ def scrape(url, user, company, attribute, input_file, headless, output_file, dri
         output = profile.to_dict()
 
     if output_file:
-        with open(output_file, 'w') as outfile:
+        with open(output_file, 'w', encoding='utf-8') as outfile:
+            # outfile.write(str(output))
             json.dump(output, outfile)
     else:
         pprint(output)
