@@ -18,6 +18,7 @@ class CompanyScraper(Scraper):
     def scrape(self, company, overview=True, jobs=True, life=False, insights=False, people=True):
         # Get Overview
         self.load_initial(company)
+        self.company = company
 
         jobs_html = life_html = insights_html = overview_html = people_html = ''
 
@@ -59,19 +60,17 @@ class CompanyScraper(Scraper):
                 'Company Unavailable: Company link does not match any companies on LinkedIn')
     
     def click_on_tab(self, tab_name):
+        main_url = "https://www.linkedin.com/company/{}/".format(self.company)
         try:
-            tabs = self.driver.find_elements_by_css_selector(
-                'li.org-page-navigation__item.m0 > a')
-            for tab in tabs:
-                if tab.text == tab_name:
-                    tab.click()
-                    return
+            self.driver.get(main_url + tab_name)
         except:
+            print("Tab cannot be found.")
             return
+
     
     def get_overview(self):
         try:
-            self.click_on_tab('About')
+            self.click_on_tab('about')
             self.wait_for_el(
                 'section.artdeco-card.p4.mb3')
             return self.driver.find_element_by_css_selector(
@@ -81,7 +80,7 @@ class CompanyScraper(Scraper):
 
     def get_life(self):
         try:
-            self.click_on_tab('Life')
+            self.click_on_tab('life')
             self.wait_for_el(
                 'a[data-control-name="page_member_main_nav_life_tab"].active')
             return self.driver.find_element_by_css_selector('.org-life').get_attribute('outerHTML')
@@ -90,7 +89,7 @@ class CompanyScraper(Scraper):
 
     def get_jobs(self):
         try:
-            self.click_on_tab('Jobs')
+            self.click_on_tab('jobs')
             self.wait_for_el(
                 'a.link-without-hover-visited.mt5.ember-view')
             self.driver.execute_script(
@@ -130,15 +129,15 @@ class CompanyScraper(Scraper):
             else:
                 job_html += click_on_job()
 
-            with open('output.html', 'w', encoding = "utf-8") as output:
-                output.write(str(job_html))
+            # with open('output.html', 'w', encoding = "utf-8") as output:
+            #     output.write(str(job_html))
             return job_html
         except:
             return ''
 
     def get_insights(self):
         try:
-            self.click_on_tab('Home')
+            self.click_on_tab('home')
             self.wait_for_el(
                 'a[data-control-name="page_member_main_nav_insights_tab"].active')
             return self.driver.find_element_by_css_selector(
@@ -148,13 +147,9 @@ class CompanyScraper(Scraper):
 
     def get_people(self):
         try:
-            self.click_on_tab('People')
+            self.click_on_tab('people')
             self.wait_for_el(
                 'div.artdeco-card.pv5.pl5.pr1.mt4')
-            
-            
-                
-            
             stats = self.driver.find_elements_by_css_selector(
                 '.artdeco-carousel__item-container')
             stats_container = ''
@@ -178,8 +173,8 @@ class CompanyScraper(Scraper):
             people_container = self.driver.find_element_by_css_selector(
                 '.artdeco-card.pv5.pl5.pr1.mt4').get_attribute('outerHTML')
             
-            with open('new_out.html','w',encoding = "utf-8") as out:
-                out.write(str(stats_container + people_container))
+            # with open('new_out.html','w',encoding = "utf-8") as out:
+            #     out.write(str(stats_container + people_container))
             return stats_container + people_container
         except:
             return ''

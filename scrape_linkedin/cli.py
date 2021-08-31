@@ -91,7 +91,7 @@ def scrape(url, user, company, attribute, input_file, headless, output_file, dri
     if output_file:
         with open(output_file, 'w', encoding='utf-8') as outfile:
             # outfile.write(str(output))
-            json.dump(output, outfile)
+            json.dump(output, outfile, ensure_ascii=False)
     else:
         pprint(output)
 
