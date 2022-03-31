@@ -1,4 +1,5 @@
 import logging
+from sysconfig import get_path
 from typing import List
 
 from .ResultsObject import ResultsObject
@@ -103,30 +104,51 @@ class Profile(ResultsObject):
             dict of person's professional experiences.  These include:
                 - Jobs
                 - Education
-                - Volunteer Experiences
+                - TODO: Volunteer Experiences
         """
         logger.info("Trying to determine the 'experiences' property")
-        experiences = dict.fromkeys(
-            ['jobs', 'education', 'volunteering'], [])
+        experiences = {
+            'jobs': [],
+            'education': [],
+            'volunteer': []
+        }
         try:
-            container = one_or_default(self.soup, '.background-section')
+            embers = self.soup.find_all("section", {"id": re.compile("ember*")})
+            for ember in embers:
+                header = ember.select("div[class=pvs-header__container]")
+                if len(header) == 0:
+                    header = get_path_text(ember, [("div", {"class": "display-flex justify-flex-start align-items-center pt3 ph3"})])
+                else:
+                    header = header[0].text
+                content = ember.find(class_="pvs-list__outer-container")
+                
+                # Parse education.
+                if len(header) > 0 and "Education" in header:
+                    for edu_section in content.find('ul', {'class': 'ph5'}).find_all('li', {'class': 'artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column'}):
+                        name = get_path_text(edu_section, [('span', {'class': 't-bold'}), ('span', {'aria-hidden': 'true'})])
+                        degree = get_path_text(edu_section, [('span', {'class': 't-14 t-normal'}), ('span', {'aria-hidden': 'true'})])
+                        if len(degree) > 0:
+                            field_of_study = degree.split(",")[1]
+                            degree = ",".join(degree.split(",")[:-1])
+                        date_range = get_path_text(edu_section, [('span', {'class': 't-14 t-normal t-black--light'}), ('span', {'aria-hidden': 'true'})])
+                        grades = get_path_text(edu_section, [('div', {'class': 'pv-shared-text-with-see-more t-14 t-normal t-black display-flex align-items-center'}), ('span', {'aria-hidden': 'true'})])
+                        experiences['education'].append({'name': name, 'degree': degree, 'date_range': date_range, "field_of_study": field_of_study, "grades": grades})
 
-            jobs = all_or_default(
-                container, '#experience-section ul .pv-position-entity')
-            jobs = list(map(get_job_info, jobs))
-            jobs = flatten_list(jobs)
+                # Parse jobs.
+                if len(header) > 0 and "Experience" in header:
+                    for job_section in content.find('ul', {'class': 'ph5'}).find_all('li', {'class': 'artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column'}):
+                        title = get_path_text(job_section, [('span', {'class': 't-bold'}), ('span', {'aria-hidden': 'true'})])
+                        company = get_path_text(job_section, [('span', {'class': 't-14 t-normal'}), ('span', {'aria-hidden': 'true'})])
+                        company = company.split("·")[0]
+                        date_range, location = '', ''
+                        for i, elem in enumerate(job_section.find_all('span', {'class': 't-14 t-normal t-black--light'})):
+                            if i == 0:
+                                date_range = get_path_text(elem, [('span', {'aria-hidden': 'true'})]).split("·")[0]
+                            elif i == 1:
+                                location = get_path_text(elem, [('span', {'aria-hidden': 'true'})])
+                        description = get_path_text(job_section, [('div', {'class': 'pv-shared-text-with-see-more t-14 t-normal t-black display-flex align-items-center'}), ('span', {'aria-hidden': 'true'})])
+                        experiences['jobs'].append({'title': title, 'company': company, 'date_range': date_range, "description": description, "location": location})
 
-            experiences['jobs'] = jobs
-
-            schools = all_or_default(
-                container, '#education-section .pv-education-entity')
-            schools = list(map(get_school_info, schools))
-            experiences['education'] = schools
-
-            volunteering = all_or_default(
-                container, '.pv-profile-section.volunteering-section .pv-volunteering-entity')
-            volunteering = list(map(get_volunteer_info, volunteering))
-            experiences['volunteering'] = volunteering
         except Exception as e:
             logger.exception(
                 "Failed while determining experiences. Results may be missing/incorrect: %s", e)

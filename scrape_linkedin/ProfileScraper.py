@@ -27,8 +27,12 @@ class ProfileScraper(Scraper):
         return self.get_profile()
 
     def scrape(self, url='', user=None):
+        experience_url = 'https://www.linkedin.com/in/' + user + '/details/experience'
+        self.load_profile_page(url=experience_url)
+        experience_info = self.get_experience_info()
+
         self.load_profile_page(url, user)
-        return self.get_profile()
+        return self.get_profile(experience_info)
 
     def load_profile_page(self, url='', user=None):
         """Load profile page and all async content
@@ -73,22 +77,9 @@ class ProfileScraper(Scraper):
                 'Profile Unavailable: Profile link does not match any current Linkedin Profiles')
         # Scroll to the bottom of the page incrementally to load any lazy-loaded content
         self.scroll_to_bottom()
-        self.expand_given_recommendations()
 
-    def expand_given_recommendations(self):
-        try:
-            given_recommendation_tab = self.driver.find_element_by_css_selector(
-                'section.pv-recommendations-section button[aria-selected="false"].artdeco-tab')
-            # Scrolls the desired element into view
-            self.driver.execute_script(
-                "arguments[0].scrollIntoView(false);", given_recommendation_tab)
-            given_recommendation_tab.click()
-            self.click_expandable_buttons()
-            # self.scroll_to_bottom()
-        except:
-            pass
-
-    def get_profile(self):
+    def get_profile(self, experience_info):
+        contact_info = self.get_contact_info()
         try:
             profile = self.driver.find_element_by_css_selector(
                 self.MAIN_SELECTOR).get_attribute("outerHTML")
@@ -96,8 +87,7 @@ class ProfileScraper(Scraper):
             logger.exception(
                 "Could not find profile wrapper html. This sometimes happens for exceptionally long profiles.  Try decreasing scroll-increment. The actual error was: %s", e)
             raise e
-        contact_info = self.get_contact_info()
-        return Profile(profile + contact_info)
+        return Profile(profile + contact_info + experience_info)
 
     def get_contact_info(self):
         try:
@@ -113,15 +103,12 @@ class ProfileScraper(Scraper):
                 "Failed to open/get contact info HTML. Returning an empty string.", e)
             return ""
 
-    def get_mutual_connections(self):
+    def get_experience_info(self):
         try:
-            link = self.driver.find_element_by_partial_link_text(
-                'Mutual Connection')
-        except NoSuchElementException as e:
+            experience_info = self.driver.find_element_by_css_selector(
+                self.MAIN_SELECTOR).get_attribute("outerHTML")
+            return experience_info
+        except Exception as e:
             logger.warning(
-                "Could not find a mutual connections link. Returning an empty list.")
-            return []
-        with ConnectionScraper(scraperInstance=self) as cs:
-            cs.driver.get(link.get_attribute('href'))
-            cs.wait_for_el('.search-s-facet--facetNetwork form button')
-            return cs.scrape_all_pages()
+                "Failed to open/get contact info HTML. Returning an empty string.", e)
+            return ""

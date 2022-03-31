@@ -79,6 +79,22 @@ def text_or_default(element, selector, default=None):
     except Exception as e:
         return default
 
+def get_path(element, path):
+    """
+    Returns:
+        BeautifulSoup element at the end of the path
+    """
+    for p in path:
+        element = element.find(*p)
+    return element
+
+def get_path_text(element, path, default=''):
+    try:
+        for p in path:
+            element = element.find(*p)
+        return element.text.strip().removesuffix('\n')
+    except:
+        return default
 
 def all_or_default(element, selector, default=[]):
     """Get all matching elements for a css selector within an element
