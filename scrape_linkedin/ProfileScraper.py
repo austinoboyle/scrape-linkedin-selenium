@@ -27,12 +27,25 @@ class ProfileScraper(Scraper):
         return self.get_profile()
 
     def scrape(self, url='', user=None):
+        self.load_profile_page(url, user)
+        full_profile = self.get_profile().to_dict()
+        print(len(full_profile["experiences"]["jobs"]))
+        
+        # Merge the more complete experience data.
         experience_url = 'https://www.linkedin.com/in/' + user + '/details/experience'
+        print("Scraping profile for URL %s", experience_url)
         self.load_profile_page(url=experience_url)
         experience_info = self.get_experience_info()
+        try:
+            experience_profile = Profile(experience_info).to_dict()
+            print(len(experience_profile["experiences"]["jobs"]))
+        except Exception as e:
+            logger.warning(
+                "Failed to open/get experience info HTML. Returning an empty string.", e)
 
-        self.load_profile_page(url, user)
-        return self.get_profile(experience_info)
+        full_profile["experiences"] = experience_profile["experiences"]
+        return full_profile
+
 
     def load_profile_page(self, url='', user=None):
         """Load profile page and all async content
@@ -78,7 +91,7 @@ class ProfileScraper(Scraper):
         # Scroll to the bottom of the page incrementally to load any lazy-loaded content
         self.scroll_to_bottom()
 
-    def get_profile(self, experience_info):
+    def get_profile(self):
         contact_info = self.get_contact_info()
         try:
             profile = self.driver.find_element_by_css_selector(
@@ -87,7 +100,7 @@ class ProfileScraper(Scraper):
             logger.exception(
                 "Could not find profile wrapper html. This sometimes happens for exceptionally long profiles.  Try decreasing scroll-increment. The actual error was: %s", e)
             raise e
-        return Profile(profile + contact_info + experience_info)
+        return Profile(profile + contact_info)
 
     def get_contact_info(self):
         try:
@@ -110,5 +123,5 @@ class ProfileScraper(Scraper):
             return experience_info
         except Exception as e:
             logger.warning(
-                "Failed to open/get contact info HTML. Returning an empty string.", e)
+                "Failed to open/get experience info HTML. Returning an empty string.", e)
             return ""

@@ -12,6 +12,7 @@ def test_profile_scraper():
 	li_scraper.set_profile_scraper()
 	profile_info = li_scraper.scrape('austinoboyle')
 	print(profile_info)
+	print(len(profile_info['experiences']['jobs']))
 
 	# Skills
 	skills = profile_info['skills']
@@ -72,3 +73,6 @@ def test_profile_scraper():
 #                        'num_employees', 'industry', 'type', 'company_size', 'headquarters', 'image']
 #     for a in overview_fields:
 #         assert overview[a]
+
+if __name__ == '__main__':
+	test_profile_scraper()

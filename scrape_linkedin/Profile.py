@@ -4,6 +4,9 @@ from typing import List
 
 from .ResultsObject import ResultsObject
 from .utils import *
+from urllib.request import urlopen 
+import base64
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +15,7 @@ class Profile(ResultsObject):
     """Linkedin User Profile Object"""
 
     attributes = ['personal_info', 'experiences',
-                  'skills', 'accomplishments', 'interests', 'recommendations']
+                  'skills', 'accomplishments']
 
     @property
     def personal_info(self):
@@ -48,11 +51,13 @@ class Profile(ResultsObject):
 
             if not image_element:
                 image_element = one_or_default(
-                    top_card, 'img.pv-top-card__photo')
+                    top_card, 'img.pv-top-card-profile-picture__image')
 
             # Set image url to the src of the image html tag, if it exists
             try:
                 image_url = image_element['src']
+                print(image_url)
+                image_url = base64.b64encode(urlopen(image_url).read())
             except:
                 pass
 
@@ -154,6 +159,8 @@ class Profile(ResultsObject):
                         description = get_path_text(job_section, [('div', {'class': 'pv-shared-text-with-see-more t-14 t-normal t-black display-flex align-items-center'}), ('span', {'aria-hidden': 'true'})])
                         if len(description) == 0:
                             description = get_path_text(job_section, [('div', {'class': 'display-flex '}), ('span', {'aria-hidden': 'true'})])
+                        # Clean the white space in description.
+                        description = re.sub(r'\s(?=\s)','',re.sub(r'\s',' ', description))
                         experiences['jobs'].append({'title': title, 'company': company, 'date_range': date_range, "description": description, "location": location})
 
         except Exception as e:
@@ -212,44 +219,6 @@ class Profile(ResultsObject):
                 "Failed to get accomplishments, results may be incomplete/missing/wrong: %s", e)
         finally:
             return accomplishments
-
-    @property
-    def interests(self):
-        """
-        Returns:
-            list of person's interests
-        """
-        logger.info("Trying to determine the 'interests' property")
-        interests = []
-        try:
-            container = one_or_default(self.soup, '.pv-interests-section')
-            interests = all_or_default(container, 'ul > li')
-            interests = list(map(lambda i: text_or_default(
-                i, '.pv-entity__summary-title'), interests))
-        except Exception as e:
-            logger.exception("Failed to get interests: %s", e)
-        finally:
-            return interests
-
-    @property
-    def recommendations(self):
-        logger.info("Trying to determine the 'recommendations' property")
-        recs = dict.fromkeys(['received', 'given'], [])
-        try:
-            rec_block = one_or_default(
-                self.soup, 'section.pv-recommendations-section')
-            received, given = all_or_default(
-                rec_block, 'div.artdeco-tabpanel')
-            for rec_received in all_or_default(received, "li.pv-recommendation-entity"):
-                recs["received"].append(
-                    get_recommendation_details(rec_received))
-
-            for rec_given in all_or_default(given, "li.pv-recommendation-entity"):
-                recs["given"].append(get_recommendation_details(rec_given))
-        except Exception as e:
-            logger.exception("Failed to get recommendations: %s", e)
-        finally:
-            return recs
 
     def to_dict(self):
         logger.info(
