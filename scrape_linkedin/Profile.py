@@ -136,7 +136,12 @@ class Profile(ResultsObject):
 
                 # Parse jobs.
                 if len(header) > 0 and "Experience" in header:
-                    for job_section in content.find('ul', {'class': 'ph5'}).find_all('li', {'class': 'artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column'}):
+                    job_section_data = content.find('ul', {'class': 'ph5'})
+                    if job_section_data is not None:
+                        job_section_data = job_section_data.find_all('li', {'class': 'artdeco-list__item pvs-list__item--line-separated pvs-list__item--one-column'})
+                    else:
+                        job_section_data = ember.find('ul', {'class': 'pvs-list'}).find_all('li', {'class': 'pvs-list__paged-list-item artdeco-list__item pvs-list__item--line-separated '})
+                    for job_section in job_section_data:
                         title = get_path_text(job_section, [('span', {'class': 't-bold'}), ('span', {'aria-hidden': 'true'})])
                         company = get_path_text(job_section, [('span', {'class': 't-14 t-normal'}), ('span', {'aria-hidden': 'true'})])
                         company = company.split("·")[0]
@@ -147,6 +152,8 @@ class Profile(ResultsObject):
                             elif i == 1:
                                 location = get_path_text(elem, [('span', {'aria-hidden': 'true'})])
                         description = get_path_text(job_section, [('div', {'class': 'pv-shared-text-with-see-more t-14 t-normal t-black display-flex align-items-center'}), ('span', {'aria-hidden': 'true'})])
+                        if len(description) == 0:
+                            description = get_path_text(job_section, [('div', {'class': 'display-flex '}), ('span', {'aria-hidden': 'true'})])
                         experiences['jobs'].append({'title': title, 'company': company, 'date_range': date_range, "description": description, "location": location})
 
         except Exception as e:

@@ -27,6 +27,14 @@ def test_handles_full_html_page():
     given to the Profile constructor yield the same Profile object"""
     with open(path.join(DIR, 'mar_2022/austin.html'), 'r') as f:
         profile_html = f.read()
+    profile = Profile(profile_html)
+    print(profile.to_dict())
+    assert profile.personal_info['name'] == "Austin O'Boyle"
+
+
+def test_handles_full_html_page_exp():
+    """Ensure the full html page and the #profile-wrapper element
+    given to the Profile constructor yield the same Profile object"""
     with open(path.join(DIR, 'mar_2022/austin_exp.html'), 'r') as f:
         exp_html = f.read()
     profile = Profile(exp_html)
