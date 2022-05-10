@@ -10,14 +10,8 @@ logger = logging.getLogger(__name__)
 class Profile(ResultsObject):
     """Linkedin User Profile Object"""
 
-    attributes = ['sections','personal_info', 'experiences',
+    attributes = ['personal_info', 'experiences',
                   'skills', 'accomplishments', 'interests', 'recommendations']
-    
-    @property
-    def sections(self):
-        sections_list = one_or_default(self.soup, 'section')
-        return sections_list
-    
 
     @property
     def personal_info(self):
