@@ -14,8 +14,11 @@ logger = logging.getLogger(__name__)
 
 class CompanyScraper(Scraper):
     def scrape(self, company, overview=True, jobs=False, life=False, insights=False):
+
+        self.url = 'https://www.linkedin.com/company/{}'.format(company)
+
         # Get Overview
-        self.load_initial(company)
+        self.load_initial()
 
         jobs_html = life_html = insights_html = overview_html = ''
 
@@ -30,10 +33,8 @@ class CompanyScraper(Scraper):
         #print("JOBS", jobs_html, "\n\n\n\n\nLIFE", life_html)
         return Company(overview_html, jobs_html, life_html, insights_html)
 
-    def load_initial(self, company):
-        url = 'https://www.linkedin.com/company/{}'.format(company)
-
-        self.driver.get(url)
+    def load_initial(self):
+        self.driver.get(self.url)
         try:
             myElem = WebDriverWait(self.driver, self.timeout).until(AnyEC(
                 EC.presence_of_element_located(
@@ -54,35 +55,39 @@ class CompanyScraper(Scraper):
                 'Company Unavailable: Company link does not match any companies on LinkedIn')
 
     def get_overview(self):
+        self.driver.get(f"{self.url}/about")
         try:
-            tab_link = self.driver.find_element_by_css_selector(
-                'a[data-control-name="page_member_main_nav_about_tab"]')
-            tab_link.click()
-            self.wait_for_el(
-                'a[data-control-name="page_member_main_nav_about_tab"].active')
+            # tab_link = self.driver.find_element_by_css_selector(
+            #     'a[data-control-name="page_member_main_nav_about_tab"]')
+            # tab_link.click()
+            # self.wait_for_el(
+            #     'a[data-control-name="page_member_main_nav_about_tab"].active')
+
             return self.driver.find_element_by_css_selector(
                 '.organization-outlet').get_attribute('outerHTML')
         except:
             return ''
 
     def get_life(self):
+        self.driver.get(f"{self.url}/life")
         try:
-            tab_link = self.driver.find_element_by_css_selector(
-                'a[data-control-name="page_member_main_nav_life_tab"]')
-            tab_link.click()
-            self.wait_for_el(
-                'a[data-control-name="page_member_main_nav_life_tab"].active')
+            # tab_link = self.driver.find_element_by_css_selector(
+            #     'a[data-control-name="page_member_main_nav_life_tab"]')
+            # tab_link.click()
+            # self.wait_for_el(
+            #     'a[data-control-name="page_member_main_nav_life_tab"].active')
             return self.driver.find_element_by_css_selector('.org-life').get_attribute('outerHTML')
         except:
             return ''
 
     def get_jobs(self):
+        self.driver.get(f"{self.url}/jobs")
         try:
-            tab_link = self.driver.find_element_by_css_selector(
-                'a[data-control-name="page_member_main_nav_jobs_tab"]')
-            tab_link.click()
-            self.wait_for_el(
-                'a[data-control-name="page_member_main_nav_jobs_tab"].active')
+            # tab_link = self.driver.find_element_by_css_selector(
+            #     'a[data-control-name="page_member_main_nav_jobs_tab"]')
+            # tab_link.click()
+            # self.wait_for_el(
+            #     'a[data-control-name="page_member_main_nav_jobs_tab"].active')
             return self.driver.find_element_by_css_selector('.org-jobs-container').get_attribute('outerHTML')
         except:
             return ''

@@ -32,8 +32,8 @@ class Company(ResultsObject):
             self.overview_soup, '.org-top-card')
 
         # Main container with company overview info
-        container = one_or_default(
-            self.overview_soup, '.org-grid__core-rail--wide')
+        container = one_or_default(self.overview_soup,
+                                   '.org-grid__content-height-enforcer')
 
         overview = {}
         overview['description'] = container.select_one(
