@@ -1,12 +1,58 @@
 import logging
 import re
+from typing import Optional
 
 from bs4 import BeautifulSoup
 
 from .ResultsObject import ResultsObject
-from .utils import AnyEC, all_or_default, get_info, one_or_default
+from .utils import all_or_default, get_info, one_or_default, text_or_default
+
+RE_DUPLICATE_WHITESPACE = re.compile(r"[\s]{2,}")
+COMPANY_SIZE_KEY = 'company_size'
 
 logger = logging.getLogger(__name__)
+
+
+def get_company_metadata(about_section):
+    """
+    Takes a Company's 'About' section, and returns a dict mapping metadata keys
+    to metadata values. Keys can be somewhat arbitrary, but common ones include
+    Company size, industry, website, specialties, headquarters, etc.
+
+    Note that this section container 'titles' and 'values' all at the same level
+    of nesting. It looks something like:
+     <dl>
+       <dt>Heading 1</dt>
+       <dd>Some value for heading 1</dd>
+       <dd>Another value for heading1</dd>
+       <dt>Heading 2</dt>
+       ...
+     </dl>
+    """
+    curr_header = None
+    results = {}
+    for child in all_or_default(about_section, "dl > *"):
+        # We've hit a new heading.
+        if child.name == 'dt':
+            curr_header = child.get_text().lower().strip().replace(" ", "_")
+            results[curr_header] = []
+        # We've hit content for the most recent heading.
+        elif child.name == 'dd':
+            content = child.get_text().strip()
+            results[curr_header].append(
+                RE_DUPLICATE_WHITESPACE.sub(" ", content))  # strip redundant whitespace
+
+    for r in results:
+        results[r] = '\n'.join(results[r])
+    return results
+
+
+def get_employee_count(s: str) -> Optional[int]:
+    """Extracts employee count from a string."""
+    employee_count_match = re.search(r'([\d,]+) on LinkedIn', s)
+    if employee_count_match:
+        return int(employee_count_match.group(1).replace(",", ""))
+    return None
 
 
 class Company(ResultsObject):
@@ -27,54 +73,33 @@ class Company(ResultsObject):
     def overview(self):
         """Return dict of the overview section of the Linkedin Page"""
 
+        overview = {
+            "description": None,
+            "image": None,
+            "name": None,
+            "num_employees": None,
+            "metadata": None
+        }
+
         # Banner containing company Name + Location
         banner = one_or_default(
             self.overview_soup, '.org-top-card')
 
         # Main container with company overview info
-        container = one_or_default(
-            self.overview_soup, '.org-grid__core-rail--wide')
+        container = one_or_default(self.overview_soup,
+                                   '.org-grid__content-height-enforcer')
 
-        overview = {}
-        overview['description'] = container.select_one(
-            'section > p').get_text().strip()
-
-        metadata_keys = container.select('.org-page-details__definition-term')
-        print(metadata_keys)
-        metadata_keys = [
-            x for x in metadata_keys if "Company size" not in x.get_text()]
-        print(metadata_keys)
-        metadata_values = container.select(
-            '.org-page-details__definition-text')
-        overview.update(
-            get_info(banner, {'name': '.org-top-card-summary__title'}))  # A fix to the name selector
-        overview.update(
-            get_info(container, {'company_size': '.org-about-company-module__company-size-definition-text'}))  # Manually added Company size
-
-        for key, val in zip(metadata_keys, metadata_values):
-            dict_key = key.get_text().strip().lower().replace(" ", "_")
-            dict_val = val.get_text().strip()
-            if "company_size" not in dict_key:
-                overview[dict_key] = dict_val
-        print(overview)
-
-        all_employees_links = all_or_default(
-            banner, '.mt2 > a > span')  # A fix to locate "See all ### employees on LinkedIn"
-
-        if all_employees_links:
-            all_employees_text = all_employees_links[-1].text
-        else:
-            all_employees_text = ''
-
-        match = re.search(r'((\d+?,?)+)', all_employees_text)
-        if match:
-            overview['num_employees'] = int(match.group(1).replace(',', ''))
-        else:
-            overview['num_employees'] = None
+        overview["name"] = text_or_default(self.overview_soup, "#main h1")
+        overview['description'] = text_or_default(container, 'section > p')
 
         logo_image_tag = one_or_default(
             banner, '.org-top-card-primary-content__logo')
         overview['image'] = logo_image_tag['src'] if logo_image_tag else ''
+
+        company_metadata = get_company_metadata(container)
+        overview["metadata"] = company_metadata
+        overview["num_employees"] = get_employee_count(company_metadata.get(
+            COMPANY_SIZE_KEY, ""))
 
         return overview
 
