@@ -171,7 +171,7 @@ class Profile(ResultsObject):
         ])
         try:
             container = one_or_default(
-                self.soup, '.pv-accomplishments-section')
+                self.soup, '.pv-profile-section')
             for key in accomplishments:
                 accs = all_or_default(
                     container, 'section.' + key + ' ul > li')
